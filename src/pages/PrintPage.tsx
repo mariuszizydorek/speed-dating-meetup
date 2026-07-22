@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ReactElement } from 'react';
+import type { DocumentProps } from '@react-pdf/renderer';
 import {
   Alert, Box, Button, Card, CardActions, CardContent, Container, Snackbar, Stack, Typography,
 } from '@mui/material';
@@ -67,7 +68,7 @@ export function PrintPage() {
     },
   ];
 
-  async function downloadOne(title: string, filename: string, node: ReactElement) {
+  async function downloadOne(title: string, filename: string, node: ReactElement<DocumentProps>) {
     try {
       const blob = await pdf(node).toBlob();
       saveAs(blob, filename);

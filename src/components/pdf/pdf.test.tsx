@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { pdf } from '@react-pdf/renderer';
 import type { ReactElement } from 'react';
+import type { DocumentProps } from '@react-pdf/renderer';
 import { PersonalPlanPdf } from './PersonalPlanPdf';
 import { NameTagsPdf } from './NameTagsPdf';
 import { AreaSignsPdf } from './AreaSignsPdf';
@@ -37,7 +38,7 @@ const schedule: Schedule = {
   },
 };
 
-async function renderToBlob(node: ReactElement) {
+async function renderToBlob(node: ReactElement<DocumentProps>) {
   const blob = await pdf(node).toBlob();
   return blob;
 }
