@@ -1,44 +1,49 @@
-import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
-import { Link as RouterLink, Outlet } from 'react-router-dom';
+import { AppBar, Box, Button, Stack, Toolbar, Typography } from '@mui/material';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { useEvent } from '../state/EventContext';
+
+const NAV = [
+  { to: '/setup', label: 'Setup' },
+  { to: '/schedule', label: 'Schedule' },
+  { to: '/print', label: 'Print' },
+  { to: '/run', label: 'Run' },
+] as const;
 
 export function AppLayout() {
+  const { actions } = useEvent();
+  const location = useLocation();
+
   return (
     <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
-      <AppBar
-        position="sticky"
-        elevation={0}
-        color="transparent"
-        sx={{
-          borderBottom: 1,
-          borderColor: 'divider',
-          backdropFilter: 'blur(8px)',
-          bgcolor: 'rgba(240, 253, 250, 0.85)',
-        }}
-      >
+      <AppBar position="sticky" elevation={0} color="transparent"
+        sx={{ borderBottom: 1, borderColor: 'divider', backdropFilter: 'blur(8px)',
+              bgcolor: 'rgba(240, 253, 250, 0.85)' }}>
         <Toolbar sx={{ gap: 1, minHeight: { xs: 56, sm: 64 } }}>
-          <Typography
-            component={RouterLink}
-            to="/"
-            variant="h6"
-            sx={{
-              flexGrow: 1,
-              textDecoration: 'none',
-              color: 'primary.main',
-              fontWeight: 700,
-              fontSize: { xs: '1rem', sm: '1.25rem' },
-            }}
-          >
-            Speed Dating Meetup
+          <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 700, mr: 2 }}>
+            Speed Networking
           </Typography>
-          <Button component={RouterLink} to="/" color="inherit" size="small">
-            Home
-          </Button>
-          <Button component={RouterLink} to="/about" color="inherit" size="small">
-            About
+          <Stack direction="row" spacing={1} sx={{ flexGrow: 1 }}>
+            {NAV.map((item) => (
+              <Button key={item.to} component={NavLink} to={item.to} size="small"
+                sx={{
+                  color: location.pathname.startsWith(item.to) ? 'primary.main' : 'text.primary',
+                  fontWeight: location.pathname.startsWith(item.to) ? 700 : 500,
+                }}>
+                {item.label}
+              </Button>
+            ))}
+          </Stack>
+          <Button size="small" color="inherit"
+            onClick={() => {
+              if (confirm('Start a new event? This will clear the current roster, schedule, and run state.')) {
+                actions.clearEvent();
+              }
+            }}>
+            New event
           </Button>
         </Toolbar>
       </AppBar>
-      <Box sx={{ flex: 1 }}>
+      <Box component="main" sx={{ flex: 1 }}>
         <Outlet />
       </Box>
     </Box>
