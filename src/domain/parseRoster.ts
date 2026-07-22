@@ -16,39 +16,71 @@ export interface RowError {
 export interface ParseResult {
   people: Person[];
   errors: RowError[];
+  /** Populated (alongside `rawRows`) when the parser could not auto-detect a Name column. */
+  detectedColumns?: string[];
+  /** Populated (alongside `detectedColumns`) so callers can re-map without re-reading the file. */
+  rawRows?: Record<string, unknown>[];
 }
 
 export async function parseRoster(
   buffer: ArrayBuffer,
   _filename: string,
 ): Promise<ParseResult> {
-  const workbook = XLSX.read(buffer, { type: 'array' });
-  const firstSheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[firstSheetName];
-  const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
-    defval: '',
-    raw: false,
-  });
-
-  const errors: RowError[] = [];
-  const people: Person[] = [];
+  const rows = readRows(buffer);
 
   if (rows.length === 0) {
-    return { people, errors };
+    return { people: [], errors: [] };
   }
 
   const nameKey = findKey(rows[0], ['name', 'full name', 'attendee']);
   const companyKey = findKey(rows[0], ['company', 'organization', 'organisation', 'org']);
 
   if (!nameKey) {
-    errors.push({
-      rowIndex: 1,
-      reason: 'missing_name_column',
-      message: 'The first sheet must have a "Name" column.',
-    });
-    return { people, errors };
+    return {
+      people: [],
+      errors: [{
+        rowIndex: 1,
+        reason: 'missing_name_column',
+        message: 'The first sheet must have a "Name" column.',
+      }],
+      detectedColumns: Object.keys(rows[0]),
+      rawRows: rows,
+    };
   }
 
+  return buildPeople(rows, nameKey, companyKey);
+}
+
+/**
+ * Parse rows using explicit column mappings, skipping auto-detection.
+ * Use when the auto-detection failed and the user picked columns via the mapper UI.
+ */
+export function parseRosterWithMapping(
+  rows: Record<string, unknown>[],
+  nameCol: string,
+  companyCol?: string,
+): ParseResult {
+  if (rows.length === 0) return { people: [], errors: [] };
+  return buildPeople(rows, nameCol, companyCol);
+}
+
+function readRows(buffer: ArrayBuffer): Record<string, unknown>[] {
+  const workbook = XLSX.read(buffer, { type: 'array' });
+  const firstSheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[firstSheetName];
+  return XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+    defval: '',
+    raw: false,
+  });
+}
+
+function buildPeople(
+  rows: Record<string, unknown>[],
+  nameKey: string,
+  companyKey: string | undefined,
+): ParseResult {
+  const errors: RowError[] = [];
+  const people: Person[] = [];
   const seen = new Set<string>();
 
   rows.forEach((row, idx) => {

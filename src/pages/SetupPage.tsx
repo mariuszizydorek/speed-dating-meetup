@@ -7,15 +7,23 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import { nanoid } from 'nanoid';
-import { parseRoster } from '../domain/parseRoster';
+import { parseRoster, parseRosterWithMapping } from '../domain/parseRoster';
 import type { RowError } from '../domain/parseRoster';
 import { useEvent } from '../state/EventContext';
-import type { BreakSlot, Person } from '../domain/types';
+import type { Area, BreakSlot, Person } from '../domain/types';
+
+interface ColumnMapperState {
+  rawRows: Record<string, unknown>[];
+  detectedColumns: string[];
+  nameCol: string;
+  companyCol: string; // '' means "no company column"
+}
 
 export function SetupPage() {
   const { state, actions } = useEvent();
   const navigate = useNavigate();
   const [errors, setErrors] = useState<RowError[]>([]);
+  const [mapper, setMapper] = useState<ColumnMapperState | null>(null);
 
   const roster = state?.roster ?? [];
   const params = state?.params;
@@ -23,6 +31,33 @@ export function SetupPage() {
   async function handleFile(file: File) {
     const buf = await file.arrayBuffer();
     const result = await parseRoster(buf, file.name);
+    actions.importRoster(result.people);
+    setErrors(result.errors);
+    if (
+      result.errors[0]?.reason === 'missing_name_column' &&
+      result.rawRows &&
+      result.detectedColumns
+    ) {
+      const cols = result.detectedColumns;
+      setMapper({
+        rawRows: result.rawRows,
+        detectedColumns: cols,
+        nameCol: cols[0] ?? '',
+        companyCol: cols[1] ?? '',
+      });
+    } else {
+      setMapper(null);
+    }
+  }
+
+  function applyMapping(next: ColumnMapperState) {
+    setMapper(next);
+    if (!next.nameCol) return;
+    const result = parseRosterWithMapping(
+      next.rawRows,
+      next.nameCol,
+      next.companyCol || undefined,
+    );
     actions.importRoster(result.people);
     setErrors(result.errors);
   }
@@ -48,21 +83,38 @@ export function SetupPage() {
   const areaCount = params?.areas.length ?? 0;
   const groupSize = params?.groupSize ?? 0;
   const hardErrors: string[] = [];
+  const softWarnings: string[] = [];
   if (!params) hardErrors.push('Import a roster to configure parameters.');
   else {
     if (roster.length < groupSize) hardErrors.push(`Need at least ${groupSize} people to form one group.`);
     if (groupSize < 2) hardErrors.push('Group size must be at least 2.');
     if (areaCount < 1) hardErrors.push('At least one area is required.');
     if (params.numRounds < 1) hardErrors.push('At least one round is required.');
+    if (params.moveSeconds < 0) hardErrors.push('Move time cannot be negative.');
+    if (params.moveSeconds > params.roundSeconds) {
+      hardErrors.push(
+        `Move time (${params.moveSeconds}s) cannot exceed round total (${params.roundSeconds}s).`,
+      );
+    }
     for (const b of params.breaks) {
       if (b.afterRound < 1 || b.afterRound >= params.numRounds) {
         hardErrors.push(`Break "${b.label}" must occur between rounds 1 and ${params.numRounds - 1}.`);
       }
     }
+    if (
+      params.moveSeconds <= params.roundSeconds &&
+      params.roundSeconds - params.moveSeconds < 30
+    ) {
+      softWarnings.push(
+        `Only ${params.roundSeconds - params.moveSeconds}s of actual conversation per round — consider a longer round.`,
+      );
+    }
   }
-  const softWarn = params && roster.length < areaCount * groupSize
-    ? `Only ${roster.length} people for ${areaCount * groupSize} seats — some groups will be smaller.`
-    : undefined;
+  if (params && roster.length < areaCount * groupSize) {
+    softWarnings.push(
+      `Only ${roster.length} people for ${areaCount * groupSize} seats — some groups will be smaller.`,
+    );
+  }
 
   return (
     <Container sx={{ py: 4 }} maxWidth="lg">
@@ -76,7 +128,9 @@ export function SetupPage() {
             </ul>
           </Alert>
         )}
-        {softWarn && <Alert severity="warning">{softWarn}</Alert>}
+        {softWarnings.map((msg, i) => (
+          <Alert key={i} severity="warning">{msg}</Alert>
+        ))}
 
         <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: '1fr 1fr' } }}>
           <Box>
@@ -98,6 +152,42 @@ export function SetupPage() {
                 Add person
               </Button>
             </Box>
+            {mapper && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  No &quot;Name&quot; column detected — pick which columns to use:
+                </Typography>
+                <Stack direction="row" spacing={2} sx={{ mt: 1, flexWrap: 'wrap' }}>
+                  <TextField
+                    select
+                    size="small"
+                    label="Name column"
+                    value={mapper.nameCol}
+                    onChange={(e) => applyMapping({ ...mapper, nameCol: e.target.value })}
+                    slotProps={{ select: { native: true } }}
+                    sx={{ minWidth: 140 }}
+                  >
+                    {mapper.detectedColumns.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </TextField>
+                  <TextField
+                    select
+                    size="small"
+                    label="Company column"
+                    value={mapper.companyCol}
+                    onChange={(e) => applyMapping({ ...mapper, companyCol: e.target.value })}
+                    slotProps={{ select: { native: true } }}
+                    sx={{ minWidth: 140 }}
+                  >
+                    <option value="">(none)</option>
+                    {mapper.detectedColumns.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </TextField>
+                </Stack>
+              </Alert>
+            )}
             {errors.length > 0 && (
               <Alert severity="warning" sx={{ mb: 2 }}>
                 <ul style={{ margin: 0, paddingLeft: 20 }}>
@@ -149,18 +239,25 @@ export function SetupPage() {
                 <TextField label="Number of areas" type="number" size="small" value={areaCount}
                   onChange={(e) => {
                     const n = Math.max(1, Number(e.target.value));
-                    const areas = Array.from({ length: n }, (_, i) => ({
-                      id: String.fromCharCode(65 + i),
-                      label: String.fromCharCode(65 + i),
-                    }));
+                    const areas: Area[] = Array.from({ length: n }, (_, i) => {
+                      const id = String.fromCharCode(65 + i);
+                      const existing = params.areas[i];
+                      // Preserve any user-edited label from the existing area at this index;
+                      // new indices default to the id letter (A, B, C…).
+                      return { id, label: existing?.label ?? id };
+                    });
                     actions.updateParams({ areas, numRounds: Math.max(params.numRounds, n) });
                   }} />
+                <AreaLabelsEditor
+                  areas={params.areas}
+                  onChange={(areas) => actions.updateParams({ areas })}
+                />
                 <TextField label="Number of rounds" type="number" size="small" value={params.numRounds}
                   onChange={(e) => actions.updateParams({ numRounds: Math.max(1, Number(e.target.value)) })} />
                 <TextField label="Round seconds (total)" type="number" size="small" value={params.roundSeconds}
                   onChange={(e) => actions.updateParams({ roundSeconds: Math.max(30, Number(e.target.value)) })} />
                 <TextField label="Move seconds" type="number" size="small" value={params.moveSeconds}
-                  onChange={(e) => actions.updateParams({ moveSeconds: Math.max(0, Number(e.target.value)) })} />
+                  onChange={(e) => actions.updateParams({ moveSeconds: Number(e.target.value) })} />
                 <FormControlLabel
                   control={<Switch checked={params.avoidSameCompany}
                     onChange={(e) => actions.updateParams({ avoidSameCompany: e.target.checked })} />}
@@ -188,6 +285,33 @@ export function SetupPage() {
         </Box>
       </Stack>
     </Container>
+  );
+}
+
+function AreaLabelsEditor({ areas, onChange }: {
+  areas: Area[]; onChange: (a: Area[]) => void;
+}) {
+  if (areas.length === 0) return null;
+  return (
+    <Box>
+      <Typography variant="subtitle2" sx={{ mb: 1 }}>Area labels</Typography>
+      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+        {areas.map((a, i) => (
+          <TextField
+            key={a.id}
+            size="small"
+            value={a.label}
+            slotProps={{ htmlInput: { 'aria-label': `Area ${a.id} label` } }}
+            onChange={(e) => {
+              const next = areas.slice();
+              next[i] = { ...a, label: e.target.value };
+              onChange(next);
+            }}
+            sx={{ width: 64 }}
+          />
+        ))}
+      </Stack>
+    </Box>
   );
 }
 

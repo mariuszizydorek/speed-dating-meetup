@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as XLSX from 'xlsx';
-import { parseRoster } from './parseRoster';
+import { parseRoster, parseRosterWithMapping } from './parseRoster';
 
 function csvBuffer(text: string): ArrayBuffer {
   const bytes = new TextEncoder().encode(text);
@@ -60,11 +60,27 @@ describe('parseRoster', () => {
     expect(result.errors[0]).toMatchObject({ rowIndex: 3, reason: 'duplicate_name' });
   });
 
-  it('reports missing Name column', async () => {
-    const buf = csvBuffer('First,Company\nAlice,Acme\n');
+  it('reports missing Name column and exposes detected columns + raw rows', async () => {
+    const buf = csvBuffer('First,Firm\nAlice,Acme\n');
     const result = await parseRoster(buf, 'roster.csv');
     expect(result.people).toEqual([]);
     expect(result.errors[0]).toMatchObject({ rowIndex: 1, reason: 'missing_name_column' });
+    expect(result.detectedColumns).toEqual(['First', 'Firm']);
+    expect(result.rawRows).toHaveLength(1);
+    expect(result.rawRows?.[0]).toMatchObject({ First: 'Alice', Firm: 'Acme' });
+  });
+
+  it('parseRosterWithMapping uses explicit column names', () => {
+    const rows = [
+      { First: 'Alice', Firm: 'Acme' },
+      { First: 'Bob', Firm: 'Beta' },
+    ];
+    const result = parseRosterWithMapping(rows, 'First', 'Firm');
+    expect(result.errors).toEqual([]);
+    expect(result.people.map((p) => ({ name: p.name, company: p.company }))).toEqual([
+      { name: 'Alice', company: 'Acme' },
+      { name: 'Bob', company: 'Beta' },
+    ]);
   });
 
   it('skips fully empty rows silently', async () => {
