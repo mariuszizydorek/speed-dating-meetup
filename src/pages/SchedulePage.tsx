@@ -37,7 +37,7 @@ export function SchedulePage() {
         <Typography variant="h4" component="h1">Schedule</Typography>
 
         <Paper sx={{ p: 2 }}>
-          <Stack direction="row" spacing={2} alignItems="center">
+          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
             <TextField label="Seed" size="small" type="number" value={seed}
               onChange={(e) => setSeed(Number(e.target.value))} sx={{ width: 160 }} />
             <Button variant="contained" onClick={generate} disabled={isPending}>
@@ -53,7 +53,7 @@ export function SchedulePage() {
           <>
             <Paper sx={{ p: 2 }}>
               <Typography variant="h6">Quality</Typography>
-              <Stack direction="row" spacing={2} sx={{ mt: 1 }} flexWrap="wrap">
+              <Stack direction="row" spacing={2} sx={{ mt: 1, flexWrap: 'wrap' }}>
                 <Chip label={`Repeated pairs: ${schedule.quality.repeatedPairs}`} color={schedule.quality.repeatedPairs === 0 ? 'success' : 'warning'} />
                 <Chip label={`Same-company pairs: ${schedule.quality.sameCompanyPairs}`} />
                 <Chip label={`Unique pairs: ${schedule.quality.uniquePairs}`} />
