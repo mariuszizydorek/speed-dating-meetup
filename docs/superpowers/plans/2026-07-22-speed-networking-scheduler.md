@@ -1704,7 +1704,7 @@ Expected: FAIL.
 Create `src/state/EventContext.tsx`:
 
 ```tsx
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
+import { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
 import type { ReactNode } from 'react';
 import type {
   EventParams,
