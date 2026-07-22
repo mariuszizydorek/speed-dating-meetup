@@ -46,10 +46,11 @@ describe('generateSchedule', () => {
       restarts: 12,
     });
     // For 40 people / 10 areas / 4 groups / 10 rounds a mathematically perfect zero-repeat
-    // schedule exists (resolvable design), but the hill-climb heuristic doesn't consistently
-    // find it. This bound reflects what the current algorithm achieves reliably within the
-    // time budget; scheduler improvements can tighten it.
-    expect(sched.quality.repeatedPairs).toBeLessThanOrEqual(33);
+    // schedule exists (resolvable design). After the incremental-delta refactor and the
+    // diversified-restart change, the hill-climb heuristic reliably reaches single-digit
+    // repeats (observed 3–6 across seeds 1..100 with these opts). Bound is
+    // max_observed(6) + 3 = 9 to absorb machine variance and RNG drift.
+    expect(sched.quality.repeatedPairs).toBeLessThanOrEqual(9);
   });
 
   it('avoidSameCompany reduces same-company pair count vs disabled', () => {
