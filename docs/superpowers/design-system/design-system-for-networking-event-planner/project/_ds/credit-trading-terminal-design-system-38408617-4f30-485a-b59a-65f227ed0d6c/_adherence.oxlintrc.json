@@ -1,0 +1,182 @@
+{
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": []
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": [
+          {
+            "group": [
+              "ui_kits/credit_trading_view/**"
+            ],
+            "message": "Import design-system components from 'index.js', not component internals."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Raw hex color — use a design-system color token via var()."
+      },
+      {
+        "selector": "Literal[value=/\\b\\d+px\\b/]",
+        "message": "Raw px value — use a design-system spacing token via var()."
+      },
+      {
+        "selector": "Literal[value=/font-family\\s*:\\s*(?!['\\\"]?(?:Lato))/i]",
+        "message": "Font not provided by the design system. Available: Lato."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/index.js"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
+  "x-omelette": {
+    "components": {},
+    "tokens": [
+      "--ctt-bg-assist",
+      "--ctt-bg-sparkle",
+      "--ctt-black",
+      "--ctt-blue",
+      "--ctt-blue-deep",
+      "--ctt-blue-sky",
+      "--ctt-blue-soft",
+      "--ctt-fg",
+      "--ctt-fg-assist",
+      "--ctt-fg-label",
+      "--ctt-fg-muted",
+      "--ctt-fg-muted-2",
+      "--ctt-fg-subtle",
+      "--ctt-fg-title",
+      "--ctt-font-icon",
+      "--ctt-font-sans",
+      "--ctt-gap-1",
+      "--ctt-gap-2",
+      "--ctt-gap-3",
+      "--ctt-gap-4",
+      "--ctt-gap-5",
+      "--ctt-gap-6",
+      "--ctt-hairline",
+      "--ctt-leading-body",
+      "--ctt-leading-flush",
+      "--ctt-mint",
+      "--ctt-mint-bright",
+      "--ctt-mint-glow",
+      "--ctt-mint-soft",
+      "--ctt-orange",
+      "--ctt-panel",
+      "--ctt-panel-2",
+      "--ctt-panel-3",
+      "--ctt-pl-down",
+      "--ctt-pl-up",
+      "--ctt-radius-md",
+      "--ctt-radius-pill",
+      "--ctt-radius-sm",
+      "--ctt-rail",
+      "--ctt-red",
+      "--ctt-shadow-pulse",
+      "--ctt-status-live",
+      "--ctt-status-lost",
+      "--ctt-status-otw",
+      "--ctt-status-won",
+      "--ctt-stroke-1",
+      "--ctt-stroke-2",
+      "--ctt-stroke-3",
+      "--ctt-stroke-4",
+      "--ctt-stroke-quiet",
+      "--ctt-stroke-warm",
+      "--ctt-text-2xl",
+      "--ctt-text-base",
+      "--ctt-text-lg",
+      "--ctt-text-md",
+      "--ctt-text-micro",
+      "--ctt-text-sm",
+      "--ctt-text-xl",
+      "--ctt-text-xs",
+      "--ctt-tracking-tight"
+    ],
+    "tokenKinds": {
+      "--ctt-black": "color",
+      "--ctt-panel": "color",
+      "--ctt-panel-2": "color",
+      "--ctt-panel-3": "color",
+      "--ctt-rail": "color",
+      "--ctt-stroke-1": "color",
+      "--ctt-stroke-2": "color",
+      "--ctt-stroke-3": "color",
+      "--ctt-stroke-4": "color",
+      "--ctt-stroke-quiet": "color",
+      "--ctt-stroke-warm": "color",
+      "--ctt-fg": "color",
+      "--ctt-fg-title": "color",
+      "--ctt-fg-muted": "color",
+      "--ctt-fg-muted-2": "color",
+      "--ctt-fg-label": "color",
+      "--ctt-fg-subtle": "color",
+      "--ctt-fg-assist": "color",
+      "--ctt-mint": "color",
+      "--ctt-mint-bright": "color",
+      "--ctt-mint-soft": "color",
+      "--ctt-mint-glow": "color",
+      "--ctt-red": "color",
+      "--ctt-blue": "color",
+      "--ctt-blue-deep": "color",
+      "--ctt-blue-sky": "color",
+      "--ctt-blue-soft": "color",
+      "--ctt-orange": "color",
+      "--ctt-bg-assist": "color",
+      "--ctt-bg-sparkle": "color",
+      "--ctt-shadow-pulse": "shadow",
+      "--ctt-font-sans": "font",
+      "--ctt-font-icon": "font",
+      "--ctt-tracking-tight": "font",
+      "--ctt-text-micro": "font",
+      "--ctt-text-xs": "font",
+      "--ctt-text-sm": "font",
+      "--ctt-text-base": "font",
+      "--ctt-text-md": "font",
+      "--ctt-text-lg": "font",
+      "--ctt-text-xl": "font",
+      "--ctt-text-2xl": "font",
+      "--ctt-leading-flush": "font",
+      "--ctt-leading-body": "font",
+      "--ctt-gap-1": "spacing",
+      "--ctt-gap-2": "spacing",
+      "--ctt-gap-3": "spacing",
+      "--ctt-gap-4": "spacing",
+      "--ctt-gap-5": "spacing",
+      "--ctt-gap-6": "spacing",
+      "--ctt-radius-sm": "radius",
+      "--ctt-radius-md": "radius",
+      "--ctt-radius-pill": "radius",
+      "--ctt-hairline": "spacing",
+      "--ctt-status-live": "color",
+      "--ctt-status-won": "color",
+      "--ctt-status-lost": "color",
+      "--ctt-status-otw": "color",
+      "--ctt-pl-up": "color",
+      "--ctt-pl-down": "color"
+    },
+    "fontFamilies": [
+      "Lato"
+    ]
+  }
+}

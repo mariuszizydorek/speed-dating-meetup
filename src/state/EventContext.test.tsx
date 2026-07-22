@@ -11,8 +11,8 @@ function Probe() {
       <button
         onClick={() =>
           actions.importRoster([
-            { id: 'p1', name: 'Alice', company: 'Acme', rowIndex: 2 },
-            { id: 'p2', name: 'Bob', company: 'Beta', rowIndex: 3 },
+            { id: 'p1', name: 'Alice', company: 'Acme', email: '', rowIndex: 2 },
+            { id: 'p2', name: 'Bob', company: 'Beta', email: '', rowIndex: 3 },
           ])
         }
       >
@@ -68,7 +68,7 @@ describe('EventContext', () => {
       'speedDating:currentEvent',
       JSON.stringify({
         version: 1,
-        roster: [{ id: 'x', name: 'X', company: 'Y', rowIndex: 2 }],
+        roster: [{ id: 'x', name: 'X', company: 'Y', email: '', rowIndex: 2 }],
         params: {
           groupSize: 4,
           areas: [{ id: 'A', label: 'A' }],

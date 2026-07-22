@@ -10,6 +10,7 @@ function roster(n: number): Person[] {
     id: `p${i}`,
     name: `P${i}`,
     company: `C${i}`,
+    email: '',
     rowIndex: i + 2,
   }));
 }

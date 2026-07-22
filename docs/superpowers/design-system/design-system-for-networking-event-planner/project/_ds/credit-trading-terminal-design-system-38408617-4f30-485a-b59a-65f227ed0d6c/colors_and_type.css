@@ -1,0 +1,219 @@
+/* ============================================================
+   Credit Trading Terminal — Design Tokens
+   Extracted from the "Credit Trading View" Figma frame.
+   ------------------------------------------------------------
+   The Figma artboard is a 1024×600 schematic — every text size
+   in the source is 6–11px because the artboard is half-scale.
+   Tokens below promote those values to terminal-realistic
+   sizes (12–22px) while preserving the type relationships
+   (display ≈ 2× section title, body ≈ 1.4× micro caption).
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap");
+
+:root {
+  /* ────────── PALETTE — neutrals (terminal substrate) ────────── */
+  --ctt-black:        rgb(0, 0, 0);          /* app shell — pure black gutter between panels */
+  --ctt-panel:        rgb(10, 12, 15);       /* panel surface (#0A0C0F) */
+  --ctt-panel-2:      rgb(46, 53, 65);       /* inset card on panel (Spot/CVA/Margin block) */
+  --ctt-panel-3:      rgb(38, 43, 50);       /* scrollbar / quiet inset */
+  --ctt-rail:         rgb(25, 28, 33);       /* subtle row hover */
+
+  /* Strokes / dividers — the design uses 4 distinct hairlines */
+  --ctt-stroke-1:     rgb(61, 61, 61);       /* strongest separator */
+  --ctt-stroke-2:     rgb(88, 88, 88);       /* default panel divider */
+  --ctt-stroke-3:     rgb(80, 80, 80);       /* input + dropdown borders */
+  --ctt-stroke-4:     rgb(56, 66, 83);       /* input fields inside cards (cool tint) */
+  --ctt-stroke-quiet: rgb(51, 51, 51);
+  --ctt-stroke-warm:  rgb(117, 107, 107);    /* used on the SELL RFQ card outline */
+
+  /* Text */
+  --ctt-fg:           rgb(255, 255, 255);    /* primary white */
+  --ctt-fg-title:     rgb(190, 190, 190);    /* panel titles (#BEBEBE) */
+  --ctt-fg-muted:     rgb(173, 169, 169);    /* dimmed value (#ADA9A9) */
+  --ctt-fg-muted-2:   rgb(170, 170, 170);    /* placeholder / icon */
+  --ctt-fg-label:     rgb(135, 135, 135);    /* form labels (#878787) */
+  --ctt-fg-subtle:    rgb(136, 136, 136);    /* table row time-stamps */
+  --ctt-fg-assist:    rgb(201, 201, 201);    /* assistant body copy */
+
+  /* ────────── PALETTE — semantic / signal ────────── */
+  --ctt-mint:         rgb(57, 233, 169);     /* "keen" / Won / up — #39E9A9 */
+  --ctt-mint-bright:  rgb(44, 255, 170);     /* signal flash / arrow / gradient start */
+  --ctt-mint-soft:    rgb(52, 211, 154);     /* table top-row divider */
+  --ctt-mint-glow:    rgba(44, 255, 170, 0.2);
+
+  --ctt-red:          rgb(189, 51, 51);      /* Lost / short / negative */
+  --ctt-blue:         rgb(63, 110, 212);     /* informational */
+  --ctt-blue-deep:    rgb(25, 96, 159);      /* primary CTA fill (Submit) */
+  --ctt-blue-sky:     rgb(106, 153, 255);    /* trader name accent / gradient end */
+  --ctt-blue-soft:    rgb(140, 167, 236);    /* secondary informational */
+  --ctt-orange:       rgb(255, 114, 70);     /* alert / negative direction badge */
+
+  /* ────────── BACKGROUNDS / EFFECTS ────────── */
+  /* The Assistance panel — radial vignette in cool slate */
+  --ctt-bg-assist:    radial-gradient(120% 90% at 50% 40%,
+                        rgba(20, 34, 56, 0.7) 31%,
+                        rgba(4, 4, 4, 0.1) 100%);
+  /* AI sparkle fill — top-to-bottom mint→sky */
+  --ctt-bg-sparkle:   linear-gradient(180deg,
+                        rgb(44, 255, 170) 0%,
+                        rgb(106, 153, 255) 75%);
+  /* Mint pulse used under the sparkle / live-data indicators */
+  --ctt-shadow-pulse: 0 22px 4px 0 rgba(44, 255, 170, 0.2);
+
+  /* ────────── TYPE ────────── */
+  --ctt-font-sans: "Lato", "Helvetica Neue", Arial, sans-serif;
+  --ctt-font-icon: "Font Awesome 6 Sharp", "Font Awesome 6 Pro", system-ui, sans-serif;
+
+  /* The Figma file uses tight optical tracking everywhere */
+  --ctt-tracking-tight:  -0.02em;
+
+  /* Size scale — promoted from the half-scale Figma artboard.
+     Figma → here:  6→11   7→12   8→13   9→14   11→16   12→18   (titles) */
+  --ctt-text-micro: 11px;   /* tiniest table caption / "View more" */
+  --ctt-text-xs:    12px;   /* table cell, label, value */
+  --ctt-text-sm:    13px;   /* button / dropdown text */
+  --ctt-text-base:  14px;   /* form labels, body in cards */
+  --ctt-text-md:    16px;   /* panel titles ("Priority RFQs", "RFQ Inbox") */
+  --ctt-text-lg:    18px;   /* "Hi, I'm your assistant" */
+  --ctt-text-xl:    22px;   /* hero numbers (Hit Rate %, All-in rate) */
+  --ctt-text-2xl:   28px;   /* page-level statement / future use */
+
+  /* Line heights — Figma uses 100% everywhere; loosen only for paragraphs */
+  --ctt-leading-flush: 1;
+  --ctt-leading-body:  1.35;
+
+  /* ────────── SPACING / RADII ────────── */
+  --ctt-gap-1: 4px;
+  --ctt-gap-2: 8px;
+  --ctt-gap-3: 12px;
+  --ctt-gap-4: 16px;
+  --ctt-gap-5: 24px;
+  --ctt-gap-6: 32px;
+
+  --ctt-radius-sm: 2px;    /* inset rate cards, dropdowns, inputs, RFQ cards */
+  --ctt-radius-md: 4px;    /* composer / assistant input */
+  --ctt-radius-pill: 999px;
+
+  /* Hairlines are explicitly 0.5px in Figma — we round to 1px on web,
+     but the variable keeps the intent clear. */
+  --ctt-hairline: 1px;
+
+  /* ────────── SEMANTIC ROLES ────────── */
+  --ctt-status-live:  var(--ctt-fg);
+  --ctt-status-won:   var(--ctt-mint);
+  --ctt-status-lost:  var(--ctt-red);
+  --ctt-status-otw:   var(--ctt-blue-soft);
+
+  --ctt-pl-up:        var(--ctt-mint);       /* positive P/L */
+  --ctt-pl-down:      var(--ctt-red);        /* negative quantity / short */
+}
+
+/* ============================================================
+   Base styles
+   ============================================================ */
+html, body {
+  background: var(--ctt-black);
+  color: var(--ctt-fg);
+  font-family: var(--ctt-font-sans);
+  font-size: var(--ctt-text-base);
+  letter-spacing: var(--ctt-tracking-tight);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   Semantic type classes — use these in markup, not raw sizes
+   ============================================================ */
+
+.ctt-display {
+  font: 700 var(--ctt-text-xl)/var(--ctt-leading-flush) var(--ctt-font-sans);
+  letter-spacing: var(--ctt-tracking-tight);
+  color: var(--ctt-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.ctt-h1, h1 {
+  font: 400 var(--ctt-text-lg)/var(--ctt-leading-flush) var(--ctt-font-sans);
+  letter-spacing: var(--ctt-tracking-tight);
+  color: var(--ctt-fg);
+}
+
+.ctt-panel-title {
+  font: 400 var(--ctt-text-md)/var(--ctt-leading-flush) var(--ctt-font-sans);
+  letter-spacing: var(--ctt-tracking-tight);
+  color: var(--ctt-fg-title);
+  text-transform: none;
+}
+
+.ctt-section-label {
+  font: 400 var(--ctt-text-base)/var(--ctt-leading-flush) var(--ctt-font-sans);
+  letter-spacing: var(--ctt-tracking-tight);
+  color: var(--ctt-fg);
+}
+
+.ctt-field-label {
+  font: 400 var(--ctt-text-xs)/var(--ctt-leading-flush) var(--ctt-font-sans);
+  letter-spacing: var(--ctt-tracking-tight);
+  color: var(--ctt-fg-label);
+}
+
+.ctt-value {
+  font: 400 var(--ctt-text-base)/var(--ctt-leading-flush) var(--ctt-font-sans);
+  letter-spacing: var(--ctt-tracking-tight);
+  color: var(--ctt-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.ctt-value-muted {
+  font: 400 var(--ctt-text-base)/var(--ctt-leading-flush) var(--ctt-font-sans);
+  letter-spacing: var(--ctt-tracking-tight);
+  color: var(--ctt-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ctt-cell {
+  font: 400 var(--ctt-text-xs)/var(--ctt-leading-flush) var(--ctt-font-sans);
+  letter-spacing: var(--ctt-tracking-tight);
+  color: var(--ctt-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.ctt-cell-time {
+  font: 400 var(--ctt-text-xs)/var(--ctt-leading-flush) var(--ctt-font-sans);
+  letter-spacing: var(--ctt-tracking-tight);
+  color: var(--ctt-fg-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.ctt-caption {
+  font: 400 var(--ctt-text-micro)/var(--ctt-leading-flush) var(--ctt-font-sans);
+  letter-spacing: var(--ctt-tracking-tight);
+  color: var(--ctt-fg-label);
+}
+
+.ctt-body {
+  font: 400 var(--ctt-text-base)/var(--ctt-leading-body) var(--ctt-font-sans);
+  letter-spacing: var(--ctt-tracking-tight);
+  color: var(--ctt-fg-assist);
+}
+
+/* Status pills / signal text */
+.ctt-status-live  { color: var(--ctt-status-live); }
+.ctt-status-won   { color: var(--ctt-status-won); }
+.ctt-status-lost  { color: var(--ctt-status-lost); }
+.ctt-status-otw   { color: var(--ctt-status-otw); }
+.ctt-up           { color: var(--ctt-pl-up); }
+.ctt-down         { color: var(--ctt-pl-down); }
+
+/* Panels */
+.ctt-panel {
+  background: var(--ctt-panel);
+  border-radius: 0; /* the source design has flat, square panel corners */
+}
+.ctt-panel-divider {
+  height: 1px;
+  background: var(--ctt-stroke-2);
+  border: 0;
+  margin: 0;
+}

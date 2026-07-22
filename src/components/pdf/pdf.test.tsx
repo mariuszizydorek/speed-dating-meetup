@@ -12,10 +12,10 @@ import type { EventState, Schedule } from '../../domain/types';
 const state: EventState = {
   version: 1,
   roster: [
-    { id: 'a', name: 'Alice', company: 'Acme', rowIndex: 2 },
-    { id: 'b', name: 'Bob', company: 'Beta', rowIndex: 3 },
-    { id: 'c', name: 'Carol', company: 'Casa', rowIndex: 4 },
-    { id: 'd', name: 'Dan', company: 'Delta', rowIndex: 5 },
+    { id: 'a', name: 'Alice', company: 'Acme', email: '', rowIndex: 2 },
+    { id: 'b', name: 'Bob', company: 'Beta', email: '', rowIndex: 3 },
+    { id: 'c', name: 'Carol', company: 'Casa', email: '', rowIndex: 4 },
+    { id: 'd', name: 'Dan', company: 'Delta', email: '', rowIndex: 5 },
   ],
   params: {
     groupSize: 4,

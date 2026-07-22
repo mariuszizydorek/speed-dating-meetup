@@ -31,3 +31,15 @@ export function clear(): void {
     /* noop */
   }
 }
+
+/** Probe whether localStorage is usable (private mode / quota / disabled). */
+export function isStorageAvailable(): boolean {
+  try {
+    const probe = `${STORAGE_KEY}:probe`;
+    localStorage.setItem(probe, '1');
+    localStorage.removeItem(probe);
+    return true;
+  } catch {
+    return false;
+  }
+}

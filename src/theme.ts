@@ -1,43 +1,18 @@
+/** Default MUI theme for unit tests (modern-light). Runtime theming uses AppThemeProvider. */
 import { createTheme } from '@mui/material/styles';
 
 export const theme = createTheme({
   cssVariables: true,
   palette: {
     mode: 'light',
-    primary: {
-      main: '#0f766e',
-      dark: '#0d5f59',
-      light: '#14b8a6',
-    },
-    secondary: {
-      main: '#be185d',
-    },
-    background: {
-      default: '#f0fdfa',
-      paper: '#ffffff',
-    },
+    primary: { main: '#0d9b6c' },
+    secondary: { main: '#5f6de0' },
+    background: { default: '#f2f2ec', paper: '#ffffff' },
+    text: { primary: '#1a1c22', secondary: '#5a5e66' },
   },
   typography: {
-    fontFamily: '"DM Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    h1: {
-      fontWeight: 700,
-      letterSpacing: '-0.02em',
-    },
-    h2: {
-      fontWeight: 700,
-      letterSpacing: '-0.02em',
-    },
+    fontFamily: '"Instrument Sans", "Helvetica Neue", Arial, sans-serif',
+    button: { textTransform: 'none' },
   },
-  shape: {
-    borderRadius: 12,
-  },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 900,
-      lg: 1200,
-      xl: 1536,
-    },
-  },
+  shape: { borderRadius: 8 },
 });

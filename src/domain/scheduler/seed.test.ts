@@ -7,6 +7,7 @@ function roster(n: number, companyStride = 1): Person[] {
     id: `p${i}`,
     name: `P${i}`,
     company: `C${Math.floor(i / companyStride)}`,
+    email: '',
     rowIndex: i + 2,
   }));
 }
@@ -82,6 +83,22 @@ describe('buildSeed', () => {
       const used = round.groups.filter((g) => g.memberIds.length > 0);
       expect(used).toHaveLength(1);
       expect(used[0].memberIds).toHaveLength(3);
+    }
+  });
+
+  it('puts over-fill into sittingOut and seats everyone exactly once', () => {
+    const p = params(); // 10 areas × 4 = 40 seats
+    const r = roster(50);
+    const rounds = buildSeed(r, p);
+    for (const round of rounds) {
+      const seated = round.groups.flatMap((g) => g.memberIds);
+      expect(seated).toHaveLength(40);
+      expect(round.sittingOut).toHaveLength(10);
+      const all = [...seated, ...round.sittingOut];
+      expect(new Set(all).size).toBe(50);
+      for (const g of round.groups) {
+        expect(g.memberIds.length).toBeLessThanOrEqual(4);
+      }
     }
   });
 });

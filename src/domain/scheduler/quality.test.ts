@@ -3,7 +3,7 @@ import { computeQuality } from './quality';
 import type { Person, Round } from '../types';
 
 function p(id: string, company = 'X'): Person {
-  return { id, name: id, company, rowIndex: 0 };
+  return { id, name: id, company, email: '', rowIndex: 0 };
 }
 
 describe('computeQuality', () => {

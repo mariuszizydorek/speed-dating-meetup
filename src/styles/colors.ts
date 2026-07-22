@@ -1,0 +1,37 @@
+/** JS-side handles for the CSS custom properties defined in `tokens.css`. */
+export const C = {
+  black: 'var(--sns-black)',
+  panel: 'var(--sns-panel)',
+  panel2: 'var(--sns-panel-2)',
+  panel3: 'var(--sns-panel-3)',
+  rail: 'var(--sns-rail)',
+
+  stroke1: 'var(--sns-stroke-1)',
+  stroke2: 'var(--sns-stroke-2)',
+  stroke3: 'var(--sns-stroke-3)',
+  stroke4: 'var(--sns-stroke-4)',
+  strokeQuiet: 'var(--sns-stroke-quiet)',
+
+  fg: 'var(--sns-fg)',
+  fgTitle: 'var(--sns-fg-title)',
+  fgMuted: 'var(--sns-fg-muted)',
+  fgLabel: 'var(--sns-fg-label)',
+  fgSubtle: 'var(--sns-fg-subtle)',
+  fgAssist: 'var(--sns-fg-assist)',
+
+  mint: 'var(--sns-mint)',
+  mintBright: 'var(--sns-mint-bright)',
+  mintSoft: 'var(--sns-mint-soft)',
+  red: 'var(--sns-red)',
+  blue: 'var(--sns-blue)',
+  blueDeep: 'var(--sns-blue-deep)',
+  blueSoft: 'var(--sns-blue-soft)',
+  orange: 'var(--sns-orange)',
+  cta: 'var(--sns-cta)',
+  acc: 'var(--sns-acc)',
+  info: 'var(--sns-info)',
+  suggestBg: 'var(--sns-suggest-bg)',
+  suggestBorder: 'var(--sns-suggest-border)',
+  radius: 'var(--sns-radius)',
+  radiusLg: 'var(--sns-radius-lg)',
+} as const;

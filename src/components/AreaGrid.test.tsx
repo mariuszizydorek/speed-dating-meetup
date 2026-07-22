@@ -6,8 +6,8 @@ import { theme } from '../theme';
 import type { EventParams, Person, Round } from '../domain/types';
 
 const roster: Person[] = [
-  { id: 'a', name: 'Alice', company: 'Acme', rowIndex: 2 },
-  { id: 'b', name: 'Bob', company: 'Beta', rowIndex: 3 },
+  { id: 'a', name: 'Alice', company: 'Acme', email: '', rowIndex: 2 },
+  { id: 'b', name: 'Bob', company: 'Beta', email: '', rowIndex: 3 },
 ];
 const params: EventParams = {
   groupSize: 2, areas: [{ id: 'A', label: 'A' }, { id: 'B', label: 'B' }],

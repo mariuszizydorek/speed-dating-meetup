@@ -1,0 +1,399 @@
+/* UI-Kit-specific styles. Tokens come from ../../colors_and_type.css */
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: #000;
+  color: #fff;
+  font-family: var(--ctt-font-sans);
+  letter-spacing: var(--ctt-tracking-tight);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: auto;
+}
+
+/* ────────── App shell — 4-column grid + bottom blotter ────────── */
+.app {
+  width: 100%;
+  min-width: 1280px;
+  min-height: 100vh;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: 180px 460px 400px 1fr;
+  grid-template-rows: minmax(0, 1fr) 280px;
+  grid-template-areas:
+    "rfq  inbox  swap  assist"
+    "blot blot   blot  assist";
+  gap: 8px;
+  background: #000;
+}
+.app > .priority { grid-area: rfq;    min-height: 0; }
+.app > .inbox    { grid-area: inbox;  min-height: 0; }
+.app > .swap     { grid-area: swap;   min-height: 0; }
+.app > .assist   { grid-area: assist; min-height: 0; }
+.app > .blotter  { grid-area: blot;   min-height: 0; }
+
+/* ────────── Panel ────────── */
+.panel {
+  background: var(--ctt-panel);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--ctt-stroke-2);
+  flex: 0 0 auto;
+}
+.panel-head .title {
+  color: var(--ctt-fg-title);
+  font-size: var(--ctt-text-md);
+  white-space: nowrap;
+}
+.panel-head .actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ctt-fg);
+}
+.icon-btn {
+  background: none;
+  border: 0;
+  color: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 2px;
+}
+.icon-btn:hover { color: var(--ctt-mint); }
+.panel-body {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ────────── Toolbar (filter + dropdown row) ────────── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.toolbar .spacer { flex: 1; }
+
+.dropdown {
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  border: 1px solid var(--ctt-stroke-3);
+  border-radius: 2px;
+  font-size: var(--ctt-text-sm);
+  color: var(--ctt-fg);
+  background: transparent;
+  cursor: pointer;
+}
+.dropdown:hover { background: var(--ctt-rail); }
+.dropdown .chev { font-size: 10px; opacity: .8; }
+
+/* ────────── RFQ Inbox table ────────── */
+.rfq-table { width: 100%; border-collapse: collapse; }
+.rfq-table thead th {
+  text-align: left;
+  font-weight: 400;
+  font-size: var(--ctt-text-sm);
+  color: var(--ctt-fg);
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--ctt-mint-soft);
+}
+.rfq-table tbody td {
+  padding: 9px 6px;
+  font-size: var(--ctt-text-xs);
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid #1c1f24;
+}
+.rfq-table tbody tr { cursor: pointer; }
+.rfq-table tbody tr:hover { background: var(--ctt-rail); }
+.rfq-table .time { color: var(--ctt-fg-subtle); width: 36px; }
+.rfq-table .qty, .rfq-table .price { text-align: right; }
+.rfq-table .status { width: 60px; }
+
+/* ────────── Hit-rate stats ────────── */
+.hitrate-row { display: flex; align-items: stretch; gap: 24px; }
+.hitrate-row .vrule {
+  width: 1px;
+  background: #1c1f24;
+  align-self: stretch;
+}
+.hitrate-row .col { display: flex; flex-direction: column; gap: 8px; }
+.hitrate-row .col .h { font-size: var(--ctt-text-base); white-space: nowrap; }
+.hitrate-row .col .row2 { display: flex; align-items: baseline; gap: 18px; }
+.hitrate-row .num {
+  font-size: var(--ctt-text-xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.hitrate-row .num .pct { font-size: var(--ctt-text-sm); font-weight: 400; margin-left: 2px; }
+.hitrate-row .small {
+  font-size: var(--ctt-text-md);
+  font-variant-numeric: tabular-nums;
+  color: var(--ctt-fg);
+}
+.hitrate-row .sub { color: var(--ctt-fg-label); font-size: var(--ctt-text-micro); }
+.hitrate-foot { display:flex; justify-content:flex-end; }
+.hitrate-foot a { color: var(--ctt-fg); font-size: var(--ctt-text-micro); text-decoration: none; cursor: pointer; }
+.hitrate-foot a:hover { color: var(--ctt-mint); }
+
+/* ────────── Swap detail ────────── */
+.swap-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--ctt-text-xs);
+}
+.swap-meta-row .right { color: var(--ctt-fg-label); text-align: right; line-height: 1.5; }
+.swap-meta-row .left  { display: flex; flex-direction: column; gap: 6px; }
+.swap-meta-row .h     { font-size: var(--ctt-text-md); color: var(--ctt-fg); }
+.swap-meta-row .traders { display: flex; gap: 14px; }
+.swap-meta-row .trader { color: var(--ctt-fg-label); }
+.swap-meta-row .trader.lead { color: var(--ctt-fg); }
+
+.legs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.leg  { display: flex; flex-direction: column; gap: 8px; }
+.leg .leg-title { font-size: var(--ctt-text-base); }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field .lbl { color: var(--ctt-fg-label); font-size: var(--ctt-text-xs); }
+.field .input {
+  height: 28px;
+  border: 1px solid var(--ctt-stroke-4);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  justify-content: space-between;
+}
+.field .input input {
+  background: none;
+  border: 0;
+  outline: 0;
+  color: var(--ctt-fg);
+  font-family: var(--ctt-font-sans);
+  font-size: var(--ctt-text-sm);
+  letter-spacing: var(--ctt-tracking-tight);
+  font-variant-numeric: tabular-nums;
+  width: 100%;
+}
+.field .input .suffix { color: var(--ctt-fg-muted); font-size: var(--ctt-text-xs); margin-left: 8px; }
+.field .input.focus { border-color: var(--ctt-blue-sky); }
+
+.rate-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.rate {
+  background: var(--ctt-panel-2);
+  border: 1px solid var(--ctt-stroke-3);
+  border-radius: 2px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rate .label { color: var(--ctt-blue-soft); font-size: var(--ctt-text-xs); }
+.rate .big {
+  font-size: var(--ctt-text-xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rate .stepper { display: flex; flex-direction: column; color: var(--ctt-fg-label); font-size: 9px; gap: 2px; }
+.rate .grid { display: grid; grid-template-columns: 1fr auto; gap: 3px 14px; font-size: var(--ctt-text-xs); }
+.rate .grid .k { color: var(--ctt-fg-muted); }
+.rate .grid .v { font-variant-numeric: tabular-nums; text-align: right; }
+.rate hr { border: 0; border-top: 1px solid #A5A1A1; opacity: .5; margin: 4px 0; }
+.rate .allin { color: var(--ctt-blue-soft); font-size: var(--ctt-text-xs); text-align: right; }
+.rate .down { color: var(--ctt-pl-down); }
+
+.btn-submit {
+  margin-top: auto;
+  background: var(--ctt-blue-deep);
+  border: 0;
+  color: var(--ctt-fg);
+  font-family: var(--ctt-font-sans);
+  font-size: var(--ctt-text-sm);
+  letter-spacing: var(--ctt-tracking-tight);
+  border-radius: 2px;
+  padding: 10px 0;
+  cursor: pointer;
+  transition: background 120ms cubic-bezier(.2,0,0,1);
+}
+.btn-submit:hover { background: #1c6cb3; }
+.btn-submit.flash {
+  background: var(--ctt-mint);
+  color: #0A0C0F;
+  transition: background 0ms;
+}
+
+/* ────────── Priority RFQ cards ────────── */
+.rfq-card {
+  border: 1px solid var(--ctt-stroke-warm);
+  border-radius: 2px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 120ms cubic-bezier(.2,0,0,1);
+}
+.rfq-card:hover { background: var(--ctt-rail); }
+.rfq-card .org   { color: var(--ctt-fg-label); font-size: var(--ctt-text-sm); }
+.rfq-card .ticker{ color: var(--ctt-fg); font-size: var(--ctt-text-base); font-variant-numeric: tabular-nums; }
+.rfq-card .side  { color: var(--ctt-fg); font-size: var(--ctt-text-sm); align-self: flex-end; font-weight: 700; }
+.rfq-card .qty   { color: var(--ctt-fg); font-size: var(--ctt-text-sm); align-self: flex-end; font-variant-numeric: tabular-nums; }
+.rfq-card .keen  {
+  align-self: flex-end;
+  margin-top: 6px;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--ctt-mint);
+  font-size: var(--ctt-text-xl);
+  font-weight: 700;
+}
+.rfq-card .keen .pct { font-size: var(--ctt-text-xs); font-weight: 400; }
+.rfq-card .keen .arr {
+  display: inline-block;
+  width: 0; height: 0;
+  border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-bottom: 6px solid var(--ctt-mint-bright);
+  margin-left: 4px; transform: translateY(-2px);
+}
+
+/* ────────── Trade Blotter ────────── */
+.blotter-table { width: 100%; border-collapse: collapse; }
+.blotter-table thead th {
+  text-align: left;
+  font-weight: 400;
+  font-size: var(--ctt-text-sm);
+  color: var(--ctt-fg-title);
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--ctt-stroke-2);
+}
+.blotter-table tbody td {
+  padding: 10px 6px;
+  font-size: var(--ctt-text-xs);
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid #1c1f24;
+}
+.blotter-table .caret { color: var(--ctt-fg); font-size: 10px; width: 14px; }
+.blotter-table tbody tr { cursor: pointer; }
+.blotter-table tbody tr:hover { background: var(--ctt-rail); }
+.blotter-table .new-row { animation: flash 1.2s cubic-bezier(.2,0,0,1) 1; }
+@keyframes flash {
+  0%   { background: rgba(57,233,169,0.25); }
+  100% { background: transparent; }
+}
+
+/* ────────── Assistance panel ────────── */
+.assist-panel {
+  position: relative;
+  background:
+    radial-gradient(120% 90% at 50% 40%, rgba(20,34,56,0.7) 31%, rgba(4,4,4,0.1) 100%),
+    #0A0C0F;
+  border: 1px solid var(--ctt-stroke-quiet);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.assist-head {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--ctt-stroke-2);
+}
+.assist-head .title { color: var(--ctt-fg-title); font-size: var(--ctt-text-md); }
+.assist-head .actions { display: flex; gap: 14px; color: var(--ctt-fg); }
+.assist-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 24px;
+  overflow: hidden;
+  position: relative;
+}
+.sparkle {
+  width: 52px; height: 52px;
+  background: linear-gradient(180deg, #2CFFAA 0%, #6A99FF 75%);
+  -webkit-mask: url("../../assets/ai-sparkle-mask.svg") center/contain no-repeat;
+          mask: url("../../assets/ai-sparkle-mask.svg") center/contain no-repeat;
+  filter: drop-shadow(0 18px 14px rgba(44,255,170,0.25));
+  margin-bottom: 28px;
+}
+.assist-intro { text-align: center; max-width: 260px; }
+.assist-intro .h { font-size: var(--ctt-text-lg); color: var(--ctt-fg); margin-bottom: 12px; }
+.assist-intro .b { font-size: var(--ctt-text-sm); color: var(--ctt-fg-assist); line-height: 1.4; }
+
+.assist-messages {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 16px 16px;
+  overflow-y: auto;
+}
+.assist-messages .msg {
+  align-self: flex-end;
+  background: rgba(20,34,56,0.9);
+  border: 1px solid var(--ctt-stroke-4);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: var(--ctt-text-sm);
+  color: var(--ctt-fg);
+  max-width: 80%;
+}
+.assist-messages .msg.bot {
+  align-self: flex-start;
+  background: rgba(10,12,15,0.6);
+  border-color: #2a2f37;
+  color: var(--ctt-fg-assist);
+}
+
+.composer {
+  border-top: 1px solid #1c1f24;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.composer input {
+  background: none;
+  border: 0;
+  outline: 0;
+  color: var(--ctt-fg);
+  font-family: var(--ctt-font-sans);
+  font-size: var(--ctt-text-sm);
+  letter-spacing: var(--ctt-tracking-tight);
+}
+.composer input::placeholder { color: var(--ctt-fg-muted-2); }
+.composer .tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--ctt-fg-muted-2);
+  font-size: 16px;
+}
+.composer .tools .left  { display: flex; gap: 18px; }
+.composer .tools .right { display: flex; gap: 14px; }
+.composer .tools button { background: none; border: 0; color: inherit; font-size: inherit; cursor: pointer; padding: 0; }
+.composer .tools button:hover { color: var(--ctt-mint); }

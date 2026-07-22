@@ -4,6 +4,7 @@ export interface Person {
   id: PersonId;
   name: string;
   company: string;
+  email: string;
   rowIndex: number;
 }
 
@@ -18,6 +19,22 @@ export interface BreakSlot {
   label: string;
 }
 
+export interface TagConfig {
+  w: number; // mm
+  h: number; // mm
+  align: 'left' | 'center';
+  companyPos: 'under' | 'bottom';
+  nameSize: 'S' | 'M' | 'L';
+}
+
+export const DEFAULT_TAG_CFG: TagConfig = {
+  w: 90,
+  h: 55,
+  align: 'center',
+  companyPos: 'under',
+  nameSize: 'M',
+};
+
 export interface EventParams {
   groupSize: number;
   areas: Area[];
@@ -26,6 +43,11 @@ export interface EventParams {
   moveSeconds: number;
   avoidSameCompany: boolean;
   breaks: BreakSlot[];
+  tagCfg?: TagConfig;
+  /**
+   * Per-round icebreaker prompts (index = round). Empty / missing = no banner.
+   */
+  icebreakers?: (string | null)[];
 }
 
 export interface Group {
@@ -67,7 +89,8 @@ export type RunPhase =
   | 'move'
   | 'break'
   | 'paused'
-  | 'finished';
+  | 'finished'
+  | 'gap';
 
 export interface RunState {
   currentRoundIndex: number;
@@ -85,6 +108,10 @@ export interface EventState {
   version: 1;
   roster: Person[];
   params: EventParams;
+  /** Active schedule (mirrors plans[planIdx] when plans exist). */
   schedule?: Schedule;
+  /** Multiple generated plans for comparison. */
+  plans?: Schedule[];
+  planIdx?: number;
   runState?: RunState;
 }

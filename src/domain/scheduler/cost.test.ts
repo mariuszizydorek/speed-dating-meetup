@@ -6,7 +6,7 @@ const W1 = 100;
 const W2 = 10;
 
 function person(id: string, company = 'X'): Person {
-  return { id, name: id.toUpperCase(), company, rowIndex: 0 };
+  return { id, name: id.toUpperCase(), company, email: '', rowIndex: 0 };
 }
 
 function round(index: number, groups: Array<{ areaId: string; memberIds: string[] }>): Round {

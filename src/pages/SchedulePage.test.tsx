@@ -8,7 +8,7 @@ import { theme } from '../theme';
 import type { Person } from '../domain/types';
 
 const people: Person[] = Array.from({ length: 8 }, (_, i) => ({
-  id: `p${i}`, name: `P${i}`, company: `C${i % 2}`, rowIndex: i + 2,
+  id: `p${i}`, name: `P${i}`, company: `C${i % 2}`, email: '', rowIndex: i + 2,
 }));
 
 function Seed() {
@@ -43,18 +43,21 @@ describe('SchedulePage', () => {
 
   it('generates a schedule and displays the round-by-area table', async () => {
     renderPage();
-    fireEvent.click(await screen.findByRole('button', { name: /generate/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /generate schedule/i }));
     await waitFor(
-      () => expect(screen.getByText(/round 1/i)).toBeInTheDocument(),
+      () => expect(screen.getByText('Area A')).toBeInTheDocument(),
       { timeout: 3000 },
     );
-    // Quality card shows some numeric summary.
-    expect(screen.getByText(/repeated pairs/i)).toBeInTheDocument();
+    // Quality card shows the stat grid.
+    expect(screen.getByText('Schedule quality')).toBeInTheDocument();
+    expect(screen.getByText('REPEATS')).toBeInTheDocument();
+    // Plans bar shows a chip for the newly generated plan.
+    expect(screen.getByText('Plan 1')).toBeInTheDocument();
   });
 
   it('shows progress bar while generating', async () => {
     renderPage();
-    fireEvent.click(await screen.findByRole('button', { name: /generate/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /generate schedule/i }));
     // The LinearProgress appears synchronously via setGenerating(true), before
     // the deferred generateSchedule tick runs.
     await waitFor(
@@ -62,7 +65,7 @@ describe('SchedulePage', () => {
     );
     // Eventually the schedule resolves and progress bar disappears.
     await waitFor(
-      () => expect(screen.getByText(/round 1/i)).toBeInTheDocument(),
+      () => expect(screen.getByText('Area A')).toBeInTheDocument(),
       { timeout: 3000 },
     );
     await waitFor(
@@ -70,51 +73,52 @@ describe('SchedulePage', () => {
     );
   });
 
+  it('adds a second plan via "+ New plan" without losing the first', async () => {
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: /generate schedule/i }));
+    await waitFor(() => expect(screen.getByText('Plan 1')).toBeInTheDocument(), { timeout: 3000 });
+    fireEvent.click(screen.getByRole('button', { name: /new plan/i }));
+    await waitFor(() => expect(screen.getByText('Plan 2')).toBeInTheDocument(), { timeout: 3000 });
+    // The first plan chip is still present after adding the second.
+    expect(screen.getByText('Plan 1')).toBeInTheDocument();
+  });
+
   it('toggles to per-person view', async () => {
     renderPage();
-    fireEvent.click(await screen.findByRole('button', { name: /generate/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /generate schedule/i }));
     await waitFor(
-      () => expect(screen.getByText(/round 1/i)).toBeInTheDocument(),
+      () => expect(screen.getByText('Area A')).toBeInTheDocument(),
       { timeout: 3000 },
     );
-    fireEvent.click(screen.getByRole('button', { name: /by person/i }));
-    // In "by person" view the row header cells contain the attendee names.
-    await waitFor(
-      () => expect(screen.getByText(/people × rounds/i)).toBeInTheDocument(),
-    );
+    fireEvent.click(screen.getByRole('button', { name: /people × rounds/i }));
+    // In "people × rounds" view the row header cells contain the attendee names.
+    const personView = await screen.findByTestId('person-view');
     // Person names should be present as row labels.
     for (const p of people) {
-      expect(screen.getByText(p.name)).toBeInTheDocument();
+      expect(within(personView).getByText(p.name)).toBeInTheDocument();
     }
     // And the round labels should now be short column headers (R1, R2, R3).
-    expect(screen.getByText('R1')).toBeInTheDocument();
-    expect(screen.getByText('Never met')).toBeInTheDocument();
+    expect(within(personView).getByText('R1')).toBeInTheDocument();
+    expect(within(personView).getByText('NEVER MET')).toBeInTheDocument();
   });
 
   it('opens a drawer with member chips when a cell is clicked', async () => {
     renderPage();
-    fireEvent.click(await screen.findByRole('button', { name: /generate/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /generate schedule/i }));
     await waitFor(
-      () => expect(screen.getByText(/round 1/i)).toBeInTheDocument(),
+      () => expect(screen.getByText('Area A')).toBeInTheDocument(),
       { timeout: 3000 },
     );
-    // Find first row of the round-by-area table (Round 1) and click its first
-    // area cell.
-    const row1 = screen.getByText(/round 1/i).closest('tr')!;
-    const cells = within(row1).getAllByRole('cell');
-    // cells[0] is the "Round 1" label; cells[1] is the first area group cell.
-    const namesInCell = cells[1]!.textContent ?? '';
-    const expectedNames = namesInCell.split(',').map((s) => s.trim()).filter(Boolean);
-    fireEvent.click(cells[1]!);
-    // Drawer appears with the same names.
+    const cell = screen.getByRole('button', { name: 'Round 1 Area A' });
+    const expectedNames = within(cell).getAllByText(/^P\d$/).map((el) => el.textContent);
+    fireEvent.click(cell);
     await waitFor(
       () => expect(screen.getByTestId('cell-drawer')).toBeInTheDocument(),
     );
     const drawer = screen.getByTestId('cell-drawer');
     for (const name of expectedNames) {
-      expect(within(drawer).getByText(new RegExp(name))).toBeInTheDocument();
+      expect(within(drawer).getByText(new RegExp(`^${name}`))).toBeInTheDocument();
     }
-    // Drawer header names the round + area.
     expect(within(drawer).getByText(/round 1/i)).toBeInTheDocument();
   });
 });

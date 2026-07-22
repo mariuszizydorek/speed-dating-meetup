@@ -9,6 +9,7 @@ function roster(n: number, companyStride = 100): Person[] {
     id: `p${i}`,
     name: `P${i}`,
     company: `C${Math.floor(i / companyStride)}`,
+    email: '',
     rowIndex: i + 2,
   }));
 }

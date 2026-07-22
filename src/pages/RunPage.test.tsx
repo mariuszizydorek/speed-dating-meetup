@@ -16,8 +16,8 @@ function Seed({ options }: { options: SeedOptions }) {
   const { state, actions } = useEvent();
   if (!state) {
     actions.importRoster([
-      { id: 'a', name: 'Alice', company: 'Acme', rowIndex: 2 },
-      { id: 'b', name: 'Bob', company: 'Beta', rowIndex: 3 },
+      { id: 'a', name: 'Alice', company: 'Acme', email: '', rowIndex: 2 },
+      { id: 'b', name: 'Bob', company: 'Beta', email: '', rowIndex: 3 },
     ]);
     return null;
   }
@@ -35,8 +35,8 @@ function Seed({ options }: { options: SeedOptions }) {
       quality: {
         totalPairs: 0, uniquePairs: 0, repeatedPairs: 0, sameCompanyPairs: 0,
         perPerson: [
-          { id: 'a', metIds: [], neverMetIds: [], repeatMeetings: 0 },
-          { id: 'b', metIds: [], neverMetIds: [], repeatMeetings: 0 },
+          { id: 'a', metIds: [], neverMetIds: ['b'], repeatMeetings: 0 },
+          { id: 'b', metIds: [], neverMetIds: ['a'], repeatMeetings: 0 },
         ],
       },
     };
@@ -66,6 +66,10 @@ function renderPage(options: SeedOptions = {}) {
   );
 }
 
+function roundIndicatorText() {
+  return screen.getByTestId('round-indicator').textContent;
+}
+
 describe('RunPage', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -73,28 +77,30 @@ describe('RunPage', () => {
   });
   afterEach(() => vi.useRealTimers());
 
-  it('shows Start button when idle', () => {
+  it('shows Start event button when idle', () => {
     renderPage();
-    expect(screen.getByRole('button', { name: /start/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /start event/i })).toBeInTheDocument();
   });
 
   it('transitions conversation → move → next round conversation', () => {
     renderPage();
-    act(() => screen.getByRole('button', { name: /start/i }).click());
-    expect(screen.getByText(/round 1/i)).toBeInTheDocument();
-    // conversation phase lasts roundSeconds - moveSeconds = 2s
-    act(() => vi.advanceTimersByTime(2100));
+    act(() => screen.getByRole('button', { name: /start event/i }).click());
+    expect(roundIndicatorText()).toBe('1 / 2');
+    expect(screen.getByText(/conversation/i)).toBeInTheDocument();
+    // conversation phase lasts roundSeconds - moveSeconds = 2s (with margin
+    // past the 250ms tick grid so the auto-advance effect reliably fires).
+    act(() => vi.advanceTimersByTime(2500));
     expect(screen.getByText(/move/i)).toBeInTheDocument();
     // move lasts 1s → next round
-    act(() => vi.advanceTimersByTime(1100));
-    expect(screen.getByText(/round 2/i)).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(1500));
+    expect(roundIndicatorText()).toBe('2 / 2');
   });
 
   it('pauses during move and resumes into move (not conversation)', () => {
     renderPage();
-    act(() => screen.getByRole('button', { name: /start/i }).click());
+    act(() => screen.getByRole('button', { name: /start event/i }).click());
     // Advance into move phase.
-    act(() => vi.advanceTimersByTime(2100));
+    act(() => vi.advanceTimersByTime(2500));
     expect(screen.getByText(/move/i)).toBeInTheDocument();
     act(() => screen.getByRole('button', { name: /pause/i }).click());
     expect(screen.getByText(/paused/i)).toBeInTheDocument();
@@ -111,28 +117,47 @@ describe('RunPage', () => {
       numRounds: 3,
       breaks: [{ afterRound: 1, seconds: 5, label: 'Coffee break' }],
     });
-    act(() => screen.getByRole('button', { name: /start/i }).click());
+    act(() => screen.getByRole('button', { name: /start event/i }).click());
     // conversation (2s) + move (1s) → break after round 1.
-    act(() => vi.advanceTimersByTime(2100));
-    act(() => vi.advanceTimersByTime(1100));
+    act(() => vi.advanceTimersByTime(2500));
+    act(() => vi.advanceTimersByTime(1500));
     expect(screen.getByText(/coffee break/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /skip break/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /\+1 minute/i })).toBeInTheDocument();
   });
 
-  it('skips to next round on Skip round button', () => {
+  it('advances to next round on Next round button', () => {
     renderPage({ numRounds: 3 });
-    act(() => screen.getByRole('button', { name: /start/i }).click());
-    expect(screen.getByText(/round 1 of 3/i)).toBeInTheDocument();
-    act(() => screen.getByRole('button', { name: /skip round/i }).click());
-    expect(screen.getByText(/round 2 of 3/i)).toBeInTheDocument();
+    act(() => screen.getByRole('button', { name: /start event/i }).click());
+    expect(roundIndicatorText()).toBe('1 / 3');
+    act(() => screen.getByRole('button', { name: /next round/i }).click());
+    expect(roundIndicatorText()).toBe('2 / 3');
+  });
+
+  it('advances a phase on Skip phase button', () => {
+    renderPage({ numRounds: 3 });
+    act(() => screen.getByRole('button', { name: /start event/i }).click());
+    expect(screen.getByText(/conversation/i)).toBeInTheDocument();
+    act(() => screen.getByRole('button', { name: /skip phase/i }).click());
+    expect(screen.getByText(/move/i)).toBeInTheDocument();
   });
 
   it('toggles next-round ghost preview', () => {
     renderPage({ numRounds: 3 });
-    act(() => screen.getByRole('button', { name: /start/i }).click());
-    expect(screen.queryByText(/preview: round/i)).not.toBeInTheDocument();
-    act(() => screen.getByLabelText(/show next round/i).click());
-    expect(screen.getByText(/preview: round 2/i)).toBeInTheDocument();
+    act(() => screen.getByRole('button', { name: /start event/i }).click());
+    expect(screen.queryByText(/next:/i)).not.toBeInTheDocument();
+    act(() => screen.getByRole('button', { name: /next-round ghost/i }).click());
+    expect(screen.getByText(/next:/i)).toBeInTheDocument();
+  });
+
+  it('shows the finished overlay and offers a gap round after the last round', () => {
+    renderPage({ numRounds: 1 });
+    act(() => screen.getByRole('button', { name: /start event/i }).click());
+    act(() => vi.advanceTimersByTime(2500));
+    act(() => vi.advanceTimersByTime(1500));
+    expect(screen.getByText(/event complete/i)).toBeInTheDocument();
+    act(() => screen.getByRole('button', { name: /meet-the-gap round/i }).click());
+    expect(screen.getByText(/meet the gap/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/find:/i).length).toBeGreaterThan(0);
   });
 });

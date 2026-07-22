@@ -65,7 +65,7 @@ describe('SetupPage', () => {
     await waitFor(() => expect(screen.getByText('4 people')).toBeInTheDocument());
 
     // Set areas to 3.
-    const areasField = screen.getByLabelText(/number of areas/i) as HTMLInputElement;
+    const areasField = screen.getByLabelText('Areas') as HTMLInputElement;
     fireEvent.change(areasField, { target: { value: '3' } });
 
     // The label editors expose an aria-label per area.
@@ -109,8 +109,8 @@ describe('SetupPage', () => {
     // Roster populates: 2 people; Alice + Acme visible in the table.
     await waitFor(() => {
       expect(screen.getByText('2 people')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('Alice')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('Acme')).toBeInTheDocument();
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText('Acme')).toBeInTheDocument();
     });
   });
 
@@ -125,9 +125,9 @@ describe('SetupPage', () => {
     await waitFor(() => expect(screen.getByText('4 people')).toBeInTheDocument());
 
     // Set roundSeconds to 60 first (default is 180), then move to 120 → invalid.
-    const roundField = screen.getByLabelText(/round seconds/i) as HTMLInputElement;
+    const roundField = screen.getByLabelText(/round length/i) as HTMLInputElement;
     fireEvent.change(roundField, { target: { value: '60' } });
-    const moveField = screen.getByLabelText(/move seconds/i) as HTMLInputElement;
+    const moveField = screen.getByLabelText(/move time/i) as HTMLInputElement;
     fireEvent.change(moveField, { target: { value: '120' } });
 
     await waitFor(() => {

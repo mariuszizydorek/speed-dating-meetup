@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="_ds/credit-trading-terminal-design-system-38408617-4f30-485a-b59a-65f227ed0d6c/colors_and_type.css">
+<link rel="stylesheet" href="_ds/credit-trading-terminal-design-system-38408617-4f30-485a-b59a-65f227ed0d6c/ui_kits/credit_trading_view/styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="_ds/credit-trading-terminal-design-system-38408617-4f30-485a-b59a-65f227ed0d6c/_ds_bundle.js"></script>
+<style>
+html,body{margin:0;padding:0;background:#000;}
+a{color:rgb(140,167,236);text-decoration:none} a:hover{color:rgb(106,153,255)}
+input,select,button{font-family:"Lato",sans-serif;letter-spacing:-0.02em}
+input[type="range"]{accent-color:rgb(57,233,169);width:100%}
+input[type="number"]{-moz-appearance:textfield}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgb(38,43,50)}::-webkit-scrollbar-track{background:transparent}
+@keyframes cttPulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes cttGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,114,70,0)}50%{box-shadow:0 0 16px 0 rgba(255,114,70,.28)}}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;background:#000;font-family:'Lato',sans-serif;letter-spacing:-0.02em;color:#fff">
+  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;padding:10px 16px;background:rgb(10,12,15);border-bottom:1px solid rgb(61,61,61)">
+    <div style="display:flex;align-items:baseline;gap:8px;margin-right:8px">
+      <span style="font-size:14px;font-weight:700;color:#fff">SPEED NETWORKING</span>
+      <span style="font-size:11px;color:rgb(135,135,135)">Scheduler</span>
+    </div>
+    <div style="display:flex;border:1px solid rgb(80,80,80);border-radius:2px;overflow:hidden">
+      <sc-for list="{{ spaceItems }}" as="sp" hint-placeholder-count="2">
+        <div onClick="{{ sp.onClick }}" style="padding:8px 14px;cursor:pointer;font-size:13px;color:{{ sp.color }};background:{{ sp.bg }};display:flex;gap:7px;align-items:center;border-left:1px solid rgb(80,80,80)" style-hover="filter:brightness(1.15)">
+          <i class="{{ sp.icon }}" style="font-size:11px"></i>
+          <span>{{ sp.label }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ spacePrepare }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;gap:2px;flex-wrap:wrap">
+        <sc-for list="{{ navItems }}" as="nv" hint-placeholder-count="3">
+          <div onClick="{{ nv.onClick }}" style="padding:7px 12px 6px;cursor:pointer;font-size:13px;color:{{ nv.color }};border-bottom:2px solid {{ nv.border }};display:flex;gap:7px;align-items:baseline" style-hover="background:rgb(25,28,33)">
+            <span style="font-size:11px;color:rgb(135,135,135);font-variant-numeric:tabular-nums">{{ nv.num }}</span>
+            <span>{{ nv.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <div style="flex:1"></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:relative">
+      <span style="font-size:11px;color:rgb(135,135,135)">{{ headerPlanMeta }}</span>
+      <button onClick="{{ toggleLib }}" style="background:transparent;border:1px solid {{ libBorder }};color:{{ libColor }};padding:6px 12px;font-size:12px;border-radius:2px;cursor:pointer;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" style-hover="background:rgb(25,28,33);color:#fff"><i class="fa-solid fa-folder-open" style="margin-right:6px;font-size:11px"></i>{{ activeProjectName }} <i class="fa-solid fa-chevron-down" style="margin-left:5px;font-size:9px"></i></button>
+      <input type="file" accept=".json,application/json" onChange="{{ onImportFile }}" ref="{{ fileRef }}" style="display:none">
+      <input type="file" accept=".csv,.txt,.json" onChange="{{ onRosterFile }}" ref="{{ csvRef }}" style="display:none">
+      <sc-if value="{{ libOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:36px;right:0;width:320px;max-width:86vw;background:rgb(10,12,15);border:1px solid rgb(88,88,88);border-radius:2px;z-index:60">
+          <div style="padding:11px 14px;font-size:13px;color:rgb(190,190,190);display:flex;align-items:center;gap:8px">Projects <span style="font-size:11px;color:rgb(135,135,135)">{{ libCount }}</span></div>
+          <div style="height:1px;background:rgb(88,88,88)"></div>
+          <div style="max-height:260px;overflow-y:auto">
+            <sc-for list="{{ libraryRows }}" as="lb" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid rgb(51,51,51)" style-hover="background:rgb(25,28,33)">
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:12px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ lb.name }}</div>
+                  <div style="font-size:11px;color:rgb(135,135,135);font-variant-numeric:tabular-nums">{{ lb.meta }}</div>
+                </div>
+                <span onClick="{{ lb.onLoad }}" style="font-size:11px;color:rgb(57,233,169);cursor:pointer;border:1px solid rgb(57,233,169);border-radius:2px;padding:3px 9px" style-hover="background:rgba(44,255,170,.08)">Load</span>
+                <span onClick="{{ lb.onDelete }}" style="color:rgb(135,135,135);cursor:pointer;padding:2px 4px" style-hover="color:rgb(189,51,51)"><i class="fa-solid fa-xmark"></i></span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ libEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:14px;font-size:12px;color:rgb(135,135,135)">No projects yet — create one or import a .json file.</div>
+            </sc-if>
+          </div>
+          <div style="height:1px;background:rgb(88,88,88)"></div>
+          <div style="display:flex;gap:6px;padding:10px 14px;flex-wrap:wrap">
+            <button onClick="{{ newProject }}" style="background:transparent;border:1px solid rgb(57,233,169);color:rgb(57,233,169);padding:6px 10px;font-size:11px;border-radius:2px;cursor:pointer;flex:1" style-hover="background:rgba(44,255,170,.08)"><i class="fa-solid fa-plus" style="margin-right:5px"></i>New project</button>
+            <button onClick="{{ exportCurrent }}" style="background:transparent;border:1px solid rgb(80,80,80);color:#fff;padding:6px 10px;font-size:11px;border-radius:2px;cursor:pointer;flex:1" style-hover="background:rgb(25,28,33)"><i class="fa-solid fa-file-export" style="margin-right:5px"></i>Export .json</button>
+            <button onClick="{{ importClick }}" style="background:transparent;border:1px solid rgb(80,80,80);color:#fff;padding:6px 10px;font-size:11px;border-radius:2px;cursor:pointer;flex:1" style-hover="background:rgb(25,28,33)"><i class="fa-solid fa-file-import" style="margin-right:5px"></i>Import</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <sc-if value="{{ isSetup }}" hint-placeholder-val="{{ true }}">
+    <div data-screen-label="Setup" style="display:flex;flex-wrap:wrap;gap:8px;padding:8px;align-items:stretch;flex:1">
+      <div style="flex:1.3 1 340px;background:rgb(10,12,15);display:flex;flex-direction:column;min-width:0">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 16px">
+          <span style="font-size:16px;color:rgb(190,190,190)">Roster</span>
+          <span style="font-size:11px;color:rgb(135,135,135)">{{ rosterMeta }}</span>
+          <div style="flex:1"></div>
+          <button onClick="{{ importRosterClick }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:6px 12px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="color:#fff;background:rgb(25,28,33)"><i class="fa-solid fa-arrow-up-from-bracket" style="margin-right:6px;font-size:11px"></i>Import .csv / .json</button>
+        </div>
+        <div style="height:1px;background:rgb(88,88,88)"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;border-bottom:1px solid rgb(51,51,51);align-items:center">
+          <input value="{{ formName }}" onInput="{{ onFormName }}" placeholder="Name" style="flex:1.1 1 120px;min-width:0;background:transparent;border:1px solid rgb(56,66,83);color:#fff;padding:7px 10px;font-size:12px;border-radius:2px">
+          <input value="{{ formCompany }}" onInput="{{ onFormCompany }}" placeholder="Company" style="flex:1 1 100px;min-width:0;background:transparent;border:1px solid rgb(56,66,83);color:#fff;padding:7px 10px;font-size:12px;border-radius:2px">
+          <input value="{{ formEmail }}" onInput="{{ onFormEmail }}" placeholder="Email" style="flex:1.3 1 140px;min-width:0;background:transparent;border:1px solid rgb(56,66,83);color:#fff;padding:7px 10px;font-size:12px;border-radius:2px">
+          <button onClick="{{ formSubmit }}" style="background:transparent;border:1px solid rgb(57,233,169);color:rgb(57,233,169);padding:7px 14px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="background:rgba(44,255,170,.08)">{{ formBtnLabel }}</button>
+          <sc-if value="{{ formEditing }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ formCancel }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:7px 12px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="color:#fff">Cancel</button>
+          </sc-if>
+        </div>
+        <sc-if value="{{ rosterEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:32px 16px">
+            <div style="max-width:420px;width:100%;text-align:center">
+              <div onClick="{{ importRosterClick }}" style="border:1px dashed rgb(88,88,88);border-radius:2px;padding:40px 24px;cursor:pointer" style-hover="border-color:rgb(57,233,169);background:rgb(25,28,33)">
+                <i class="fa-solid fa-file-arrow-up" style="font-size:26px;color:rgb(57,233,169);margin-bottom:14px"></i>
+                <div style="font-size:15px;color:#fff;margin-bottom:6px">Import your people list</div>
+                <div style="font-size:12px;color:rgb(173,169,169);line-height:1.4;margin-bottom:12px">.csv or .json — one row per attendee.<br>Columns: <span style="color:#fff">Name</span>, <span style="color:#fff">Company</span>, <span style="color:#fff">Email</span> (header row optional)</div>
+                <div style="display:inline-block;background:rgb(46,53,65);border:1px solid rgb(80,80,80);border-radius:2px;padding:7px 12px;font-size:11px;color:rgb(190,190,190);font-variant-numeric:tabular-nums;text-align:left">Name,Company,Email<br>Alice Kowalski,Helios Energy,alice@helios.com<br>Marcus Nguyen,Nordbank,marcus@nordbank.com</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin:16px 0 10px">
+                <div style="flex:1;height:1px;background:rgb(51,51,51)"></div>
+                <span style="font-size:11px;color:rgb(135,135,135)">or</span>
+                <div style="flex:1;height:1px;background:rgb(51,51,51)"></div>
+              </div>
+              <button onClick="{{ loadDemo }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:8px 16px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="color:#fff;background:rgb(25,28,33)">Try with a 40-person demo roster</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ rosterHasPeople }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:40px 1.1fr 1fr 1.3fr 52px;padding:8px 16px;font-size:11px;color:rgb(135,135,135)">
+            <span>#</span><span>Name</span><span>Company</span><span>Email</span><span></span>
+          </div>
+          <div style="overflow-y:auto;max-height:560px;flex:1">
+            <sc-for list="{{ rosterRows }}" as="rr" hint-placeholder-count="8">
+              <div style="display:grid;grid-template-columns:40px 1.1fr 1fr 1.3fr 52px;padding:7px 16px;font-size:12px;border-top:1px solid rgb(51,51,51);font-variant-numeric:tabular-nums;align-items:center;background:{{ rr.bg }}" style-hover="background:rgb(25,28,33)">
+                <span style="color:rgb(136,136,136)">{{ rr.n }}</span>
+                <span style="color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rr.name }}</span>
+                <span style="color:rgb(173,169,169);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rr.company }}</span>
+                <span style="color:rgb(140,167,236);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rr.email }}</span>
+                <span style="display:flex;gap:10px;justify-content:flex-end">
+                  <span onClick="{{ rr.onEdit }}" style="color:rgb(135,135,135);cursor:pointer" style-hover="color:rgb(57,233,169)"><i class="fa-solid fa-pen" style="font-size:11px"></i></span>
+                  <span onClick="{{ rr.onDelete }}" style="color:rgb(135,135,135);cursor:pointer" style-hover="color:rgb(189,51,51)"><i class="fa-solid fa-xmark" style="font-size:12px"></i></span>
+                </span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="flex:1 1 320px;display:flex;flex-direction:column;gap:8px;min-width:0">
+        <div style="background:rgb(46,53,65);border:1px solid rgb(80,80,80);border-radius:2px;padding:14px 16px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color:rgb(57,233,169);font-size:12px"></i>
+            <span style="font-size:14px;color:#fff">Suggested setup</span>
+          </div>
+          <div style="font-size:13px;line-height:1.35;color:rgb(201,201,201);margin-bottom:10px">{{ suggestionText }}</div>
+          <button onClick="{{ applySuggestion }}" style="background:transparent;border:1px solid rgb(57,233,169);color:rgb(57,233,169);padding:6px 14px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="background:rgba(44,255,170,.08)">Apply suggestion</button>
+        </div>
+
+        <div style="background:rgb(10,12,15);padding:0 0 14px">
+          <div style="padding:12px 16px;font-size:16px;color:rgb(190,190,190)">Parameters</div>
+          <div style="height:1px;background:rgb(88,88,88)"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:14px 16px 4px">
+            <div><div style="font-size:12px;color:rgb(135,135,135);margin-bottom:5px">Group size</div>
+              <input type="number" value="{{ p.groupSize }}" onChange="{{ onGroupSize }}" min="2" max="8" style="width:100%;box-sizing:border-box;background:transparent;border:1px solid rgb(56,66,83);color:#fff;padding:8px 10px;font-size:14px;border-radius:2px;font-variant-numeric:tabular-nums"></div>
+            <div><div style="font-size:12px;color:rgb(135,135,135);margin-bottom:5px">Areas</div>
+              <input type="number" value="{{ p.areaCount }}" onChange="{{ onAreaCount }}" min="1" max="16" style="width:100%;box-sizing:border-box;background:transparent;border:1px solid rgb(56,66,83);color:#fff;padding:8px 10px;font-size:14px;border-radius:2px;font-variant-numeric:tabular-nums"></div>
+            <div><div style="font-size:12px;color:rgb(135,135,135);margin-bottom:5px">Rounds</div>
+              <input type="number" value="{{ p.numRounds }}" onChange="{{ onRounds }}" min="1" max="20" style="width:100%;box-sizing:border-box;background:transparent;border:1px solid rgb(56,66,83);color:#fff;padding:8px 10px;font-size:14px;border-radius:2px;font-variant-numeric:tabular-nums"></div>
+            <div><div style="font-size:12px;color:rgb(135,135,135);margin-bottom:5px">Round length (sec)</div>
+              <input type="number" value="{{ p.roundSeconds }}" onChange="{{ onRoundSec }}" min="60" max="600" step="30" style="width:100%;box-sizing:border-box;background:transparent;border:1px solid rgb(56,66,83);color:#fff;padding:8px 10px;font-size:14px;border-radius:2px;font-variant-numeric:tabular-nums"></div>
+            <div><div style="font-size:12px;color:rgb(135,135,135);margin-bottom:5px">Move time (sec)</div>
+              <input type="number" value="{{ p.moveSeconds }}" onChange="{{ onMoveSec }}" min="10" max="120" step="10" style="width:100%;box-sizing:border-box;background:transparent;border:1px solid rgb(56,66,83);color:#fff;padding:8px 10px;font-size:14px;border-radius:2px;font-variant-numeric:tabular-nums"></div>
+            <div><div style="font-size:12px;color:rgb(135,135,135);margin-bottom:5px">Avoid same company</div>
+              <div onClick="{{ toggleAvoid }}" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;padding:7px 0">
+                <div style="width:32px;height:16px;border:1px solid {{ avoidBorder }};border-radius:999px;position:relative;transition:all .18s">
+                  <div style="position:absolute;top:2px;left:{{ avoidKnob }};width:10px;height:10px;border-radius:999px;background:{{ avoidKnobBg }};transition:all .18s"></div>
+                </div>
+                <span style="font-size:12px;color:{{ avoidLabelColor }}">{{ avoidLabel }}</span>
+              </div></div>
+          </div>
+          <div style="padding:10px 16px 0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-size:12px;color:rgb(135,135,135)">Breaks</span>
+              <div style="flex:1;height:1px;background:rgb(51,51,51)"></div>
+              <button onClick="{{ addBreak }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:4px 10px;font-size:11px;border-radius:2px;cursor:pointer" style-hover="color:#fff">+ Add break</button>
+            </div>
+            <sc-for list="{{ breakRows }}" as="bk" hint-placeholder-count="1">
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid rgb(56,66,83);border-radius:2px;margin-bottom:6px;font-size:12px">
+                <i class="fa-solid fa-mug-hot" style="color:rgb(140,167,236);font-size:11px"></i>
+                <span style="color:#fff">{{ bk.label }}</span>
+                <span style="color:rgb(135,135,135)">{{ bk.desc }}</span>
+                <div style="flex:1"></div>
+                <span onClick="{{ bk.onRemove }}" style="color:rgb(135,135,135);cursor:pointer;padding:2px 6px" style-hover="color:rgb(189,51,51)"><i class="fa-solid fa-xmark"></i></span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:rgb(10,12,15);padding:0 0 14px">
+          <div style="display:flex;align-items:center;gap:8px;padding:12px 16px">
+            <span style="font-size:16px;color:rgb(190,190,190)">Icebreakers</span>
+            <span style="font-size:11px;color:rgb(135,135,135)">shown on the big screen each round</span>
+            <div style="flex:1"></div>
+            <button onClick="{{ resetIcebreakers }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:5px 10px;font-size:11px;border-radius:2px;cursor:pointer" style-hover="color:#fff">Reset to defaults</button>
+          </div>
+          <div style="height:1px;background:rgb(88,88,88)"></div>
+          <div style="display:flex;flex-direction:column;gap:6px;padding:12px 16px 0;max-height:280px;overflow-y:auto">
+            <sc-for list="{{ icebreakerRows }}" as="ib" hint-placeholder-count="10">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:11px;color:rgb(135,135,135);font-variant-numeric:tabular-nums;width:20px;flex:none">{{ ib.num }}</span>
+                <input value="{{ ib.value }}" onInput="{{ ib.onInput }}" placeholder="Leave blank for no prompt this round" style="flex:1;min-width:0;background:transparent;border:1px solid rgb(56,66,83);color:#fff;padding:7px 10px;font-size:12px;border-radius:2px">
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:rgb(10,12,15);padding:12px 16px;display:flex;flex-direction:column;gap:7px">
+          <sc-for list="{{ validations }}" as="vd" hint-placeholder-count="2">
+            <div style="display:flex;gap:9px;align-items:baseline;font-size:12px">
+              <span style="width:7px;height:7px;border-radius:999px;background:{{ vd.dot }};flex:none;position:relative;top:-1px"></span>
+              <span style="color:{{ vd.color }}">{{ vd.text }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <button onClick="{{ onGenerate }}" style="flex:1;background:{{ genBg }};border:none;color:{{ genColor }};padding:12px 16px;font-size:14px;border-radius:2px;cursor:{{ genCursor }}" style-hover="filter:brightness(1.15)">Generate schedule <i class="fa-solid fa-arrow-right" style="margin-left:6px;font-size:12px"></i></button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isSchedule }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Schedule" style="display:flex;flex-direction:column;gap:8px;padding:8px;flex:1;min-width:0">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:rgb(10,12,15);padding:10px 16px">
+        <span style="font-size:11px;color:rgb(135,135,135);margin-right:4px">PLANS</span>
+        <sc-for list="{{ planChips }}" as="pc" hint-placeholder-count="3">
+          <div onClick="{{ pc.onClick }}" style="cursor:pointer;padding:7px 12px;border:1px solid {{ pc.border }};border-radius:2px;display:flex;gap:10px;align-items:baseline" style-hover="background:rgb(25,28,33)">
+            <span style="font-size:13px;color:{{ pc.color }}">{{ pc.label }}</span>
+            <span style="font-size:11px;color:{{ pc.subColor }};font-variant-numeric:tabular-nums">{{ pc.sub }}</span>
+          </div>
+        </sc-for>
+        <button onClick="{{ addPlan }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:7px 12px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="color:#fff">+ New plan</button>
+        <div style="flex:1"></div>
+        <span style="font-size:11px;color:rgb(135,135,135);font-variant-numeric:tabular-nums">{{ planMeta }}</span>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <div style="flex:1.1 1 300px;background:rgb(10,12,15);min-width:0">
+          <div style="padding:12px 16px;font-size:16px;color:rgb(190,190,190)">Schedule quality</div>
+          <div style="height:1px;background:rgb(88,88,88)"></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));border-bottom:1px solid rgb(51,51,51)">
+            <sc-for list="{{ statCards }}" as="st" hint-placeholder-count="5">
+              <div style="background:rgb(10,12,15);padding:14px 16px;border-left:1px solid rgb(51,51,51);margin-left:-1px">
+                <div style="font-size:11px;color:rgb(135,135,135);margin-bottom:7px">{{ st.k }}</div>
+                <div style="font-size:22px;font-weight:700;color:{{ st.color }};font-variant-numeric:tabular-nums">{{ st.v }}</div>
+                <div style="font-size:11px;color:rgb(136,136,136);margin-top:5px">{{ st.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="padding:12px 16px;font-size:12px;color:rgb(173,169,169);line-height:1.35">{{ qualityNote }}</div>
+        </div>
+
+        <div style="flex:1 1 300px;background:rgb(10,12,15);min-width:0;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:baseline;gap:10px;padding:12px 16px">
+            <span style="font-size:16px;color:rgb(190,190,190)">Never-met explorer</span>
+            <span style="font-size:11px;color:rgb(135,135,135)">sorted worst-first</span>
+          </div>
+          <div style="height:1px;background:rgb(88,88,88)"></div>
+          <div style="padding:14px 16px">
+            <input type="range" min="0" max="{{ personMax }}" value="{{ personSlider }}" onInput="{{ onPersonSlider }}">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:rgb(135,135,135);margin-top:2px">
+              <span>most unmet</span><span>fewest unmet</span>
+            </div>
+          </div>
+          <div style="margin:0 16px 14px;background:rgb(46,53,65);border:1px solid rgb(80,80,80);border-radius:2px;padding:12px 14px">
+            <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+              <span style="font-size:16px;color:#fff">{{ selName }}</span>
+              <span style="font-size:12px;color:rgb(173,169,169)">{{ selCompany }}</span>
+              <div style="flex:1"></div>
+              <span style="font-size:12px;font-variant-numeric:tabular-nums"><span style="color:rgb(57,233,169)">{{ selMet }} met</span><span style="color:rgb(135,135,135)"> · </span><span style="color:rgb(255,114,70)">{{ selNever }} never</span></span>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px">
+              <sc-for list="{{ selNeverList }}" as="nm" hint-placeholder-count="6">
+                <span style="display:inline-block;white-space:nowrap;border:1px solid rgb(80,80,80);border-radius:2px;padding:3px 8px;font-size:11px;color:rgb(173,169,169)">{{ nm.name }} <span style="color:rgb(135,135,135)">· {{ nm.company }}</span></span>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgb(10,12,15);display:flex;flex-direction:column;min-width:0">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px">
+          <span style="font-size:16px;color:rgb(190,190,190)">{{ matrixTitle }}</span>
+          <div style="display:flex;border:1px solid rgb(80,80,80);border-radius:2px;overflow:hidden">
+            <div onClick="{{ onViewMatrix }}" style="padding:6px 12px;font-size:12px;cursor:pointer;color:{{ vmMatrixColor }};background:{{ vmMatrixBg }}">Rounds × Areas</div>
+            <div onClick="{{ onViewPerson }}" style="padding:6px 12px;font-size:12px;cursor:pointer;color:{{ vmPersonColor }};background:{{ vmPersonBg }};border-left:1px solid rgb(80,80,80)">People × Rounds</div>
+          </div>
+          <div style="flex:1"></div>
+          <button onClick="{{ goPrint }}" style="background:rgb(25,96,159);border:none;color:#fff;padding:9px 16px;font-size:13px;border-radius:2px;cursor:pointer" style-hover="filter:brightness(1.15)">Print materials <i class="fa-solid fa-arrow-right" style="margin-left:5px;font-size:11px"></i></button>
+        </div>
+        <div style="height:1px;background:rgb(88,88,88)"></div>
+        <sc-if value="{{ isMatrixView }}" hint-placeholder-val="{{ true }}">
+          <div style="overflow-x:auto">
+            <div style="min-width:{{ matrixMinW }}">
+              <div style="display:grid;grid-template-columns:52px repeat({{ areaCountStr }}, minmax(108px,1fr));border-bottom:1px solid rgb(52,211,154)">
+                <div style="padding:8px 10px;font-size:11px;color:rgb(135,135,135)">RND</div>
+                <sc-for list="{{ areaHeads }}" as="ah" hint-placeholder-count="10">
+                  <div style="padding:8px 10px;font-size:12px;color:rgb(190,190,190)">Area {{ ah.letter }}</div>
+                </sc-for>
+              </div>
+              <sc-for list="{{ matrixRows }}" as="mr" hint-placeholder-count="4">
+                <div style="display:grid;grid-template-columns:52px repeat({{ areaCountStr }}, minmax(108px,1fr));border-bottom:1px solid rgb(51,51,51)" style-hover="background:rgb(25,28,33)">
+                  <div style="padding:9px 10px;font-size:12px;color:rgb(136,136,136);font-variant-numeric:tabular-nums">{{ mr.label }}</div>
+                  <sc-for list="{{ mr.cells }}" as="mc" hint-placeholder-count="10">
+                    <div style="padding:8px 10px;border-left:1px solid rgb(51,51,51)">
+                      <sc-for list="{{ mc.names }}" as="mn" hint-placeholder-count="4">
+                        <div style="font-size:11px;color:#fff;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ mn }}</div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isPersonView }}" hint-placeholder-val="{{ false }}">
+          <div style="overflow-x:auto">
+            <div style="min-width:760px">
+              <div style="display:grid;grid-template-columns:170px repeat({{ roundCountStr }}, 44px) 90px;border-bottom:1px solid rgb(52,211,154)">
+                <div style="padding:8px 12px;font-size:11px;color:rgb(135,135,135)">PERSON</div>
+                <sc-for list="{{ roundHeads }}" as="rh" hint-placeholder-count="10">
+                  <div style="padding:8px 6px;font-size:11px;color:rgb(190,190,190);text-align:center;font-variant-numeric:tabular-nums">{{ rh }}</div>
+                </sc-for>
+                <div style="padding:8px 10px;font-size:11px;color:rgb(135,135,135);text-align:right">NEVER MET</div>
+              </div>
+              <sc-for list="{{ personRows }}" as="pr" hint-placeholder-count="8">
+                <div style="display:grid;grid-template-columns:170px repeat({{ roundCountStr }}, 44px) 90px;border-bottom:1px solid rgb(51,51,51);align-items:center" style-hover="background:rgb(25,28,33)">
+                  <div style="padding:7px 12px;font-size:12px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pr.name }} <span style="color:rgb(135,135,135);font-size:11px">{{ pr.companyShort }}</span></div>
+                  <sc-for list="{{ pr.cells }}" as="pcell" hint-placeholder-count="10">
+                    <div style="text-align:center;font-size:12px;color:rgb(173,169,169);font-variant-numeric:tabular-nums">{{ pcell }}</div>
+                  </sc-for>
+                  <div style="padding:7px 10px;text-align:right;font-size:12px;color:{{ pr.neverColor }};font-variant-numeric:tabular-nums">{{ pr.never }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isPrint }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Print" style="display:flex;flex-direction:column;gap:8px;padding:8px;flex:1">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:rgb(10,12,15);padding:12px 16px">
+        <span style="font-size:16px;color:rgb(190,190,190)">Print materials</span>
+        <span style="font-size:11px;color:rgb(135,135,135)">{{ printMeta }}</span>
+        <div style="flex:1"></div>
+        <button onClick="{{ dlAll }}" style="background:rgb(25,96,159);border:none;color:#fff;padding:9px 16px;font-size:13px;border-radius:2px;cursor:pointer" style-hover="filter:brightness(1.15)"><i class="fa-solid fa-file-zipper" style="margin-right:7px;font-size:12px"></i>Download all (.zip)</button>
+        <button onClick="{{ goRun }}" style="background:transparent;border:1px solid rgb(57,233,169);color:rgb(57,233,169);padding:8px 16px;font-size:13px;border-radius:2px;cursor:pointer" style-hover="background:rgba(44,255,170,.08)">Start event <i class="fa-solid fa-arrow-right" style="margin-left:5px;font-size:11px"></i></button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px">
+
+        <div style="background:rgb(10,12,15);display:flex;flex-direction:column">
+          <div style="height:170px;display:flex;align-items:center;justify-content:center;background:rgb(25,28,33)">
+            <div style="width:104px;height:140px;background:#f4f3ef;border-radius:1px;padding:8px;box-sizing:border-box;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:3px">
+              <div style="border:1px dashed #999"></div><div style="border:1px dashed #999"></div><div style="border:1px dashed #999"></div><div style="border:1px dashed #999"></div><div style="border:1px dashed #999"></div><div style="border:1px dashed #999"></div><div style="border:1px dashed #999"></div><div style="border:1px dashed #999"></div><div style="border:1px dashed #999"></div><div style="border:1px dashed #999"></div>
+            </div>
+          </div>
+          <div style="padding:12px 14px;flex:1">
+            <div style="font-size:14px;color:#fff;margin-bottom:5px">Personal plans</div>
+            <div style="font-size:12px;color:rgb(173,169,169);line-height:1.35">One A4 per person — a tear-off mini-tag for every round: area + who to meet.</div>
+          </div>
+          <div style="display:flex;gap:6px;padding:0 14px 14px">
+            <button onClick="{{ dlPlans }}" style="background:transparent;border:1px solid rgb(80,80,80);color:#fff;padding:7px 12px;font-size:12px;border-radius:2px;cursor:pointer;flex:1" style-hover="background:rgb(25,28,33)"><i class="fa-solid fa-file-pdf" style="margin-right:6px;color:rgb(140,167,236)"></i>{{ plansPagesLabel }}</button>
+          </div>
+        </div>
+
+        <div style="background:rgb(10,12,15);display:flex;flex-direction:column">
+          <div style="height:170px;display:flex;align-items:center;justify-content:center;background:rgb(25,28,33)">
+            <div style="width:104px;height:140px;background:#f4f3ef;padding:8px;box-sizing:border-box;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px">
+              <div style="border:1px solid #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><div style="width:70%;height:5px;background:#333"></div><div style="width:45%;height:3px;background:#999"></div></div>
+              <div style="border:1px solid #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><div style="width:70%;height:5px;background:#333"></div><div style="width:45%;height:3px;background:#999"></div></div>
+              <div style="border:1px solid #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><div style="width:70%;height:5px;background:#333"></div><div style="width:45%;height:3px;background:#999"></div></div>
+              <div style="border:1px solid #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><div style="width:70%;height:5px;background:#333"></div><div style="width:45%;height:3px;background:#999"></div></div>
+            </div>
+          </div>
+          <div style="padding:12px 14px;flex:1">
+            <div style="font-size:14px;color:#fff;margin-bottom:5px">Name tags</div>
+            <div style="font-size:12px;color:rgb(173,169,169);line-height:1.35">Big name, smaller company. Size and per-page layout are set in “Name tag layout” below.</div>
+          </div>
+          <div style="display:flex;gap:6px;padding:0 14px 14px">
+            <button onClick="{{ dlTags }}" style="background:transparent;border:1px solid rgb(80,80,80);color:#fff;padding:7px 12px;font-size:12px;border-radius:2px;cursor:pointer;flex:1" style-hover="background:rgb(25,28,33)"><i class="fa-solid fa-file-pdf" style="margin-right:6px;color:rgb(140,167,236)"></i>{{ tagPagesLabel }}</button>
+          </div>
+        </div>
+
+        <div style="background:rgb(10,12,15);display:flex;flex-direction:column">
+          <div style="height:170px;display:flex;align-items:center;justify-content:center;background:rgb(25,28,33)">
+            <div style="width:104px;height:140px;background:#f4f3ef;display:flex;align-items:center;justify-content:center">
+              <span style="font-size:64px;font-weight:900;color:#1a1a1a;font-family:'Lato',sans-serif">A</span>
+            </div>
+          </div>
+          <div style="padding:12px 14px;flex:1">
+            <div style="font-size:14px;color:#fff;margin-bottom:5px">Area signs</div>
+            <div style="font-size:12px;color:rgb(173,169,169);line-height:1.35">One A4 per area in use. Very large centred letter.</div>
+          </div>
+          <div style="display:flex;gap:6px;padding:0 14px 14px">
+            <button onClick="{{ dlSigns }}" style="background:transparent;border:1px solid rgb(80,80,80);color:#fff;padding:7px 12px;font-size:12px;border-radius:2px;cursor:pointer;flex:1" style-hover="background:rgb(25,28,33)"><i class="fa-solid fa-file-pdf" style="margin-right:6px;color:rgb(140,167,236)"></i>{{ signsPagesLabel }}</button>
+          </div>
+        </div>
+
+        <div style="background:rgb(10,12,15);display:flex;flex-direction:column">
+          <div style="height:170px;display:flex;align-items:center;justify-content:center;background:rgb(25,28,33)">
+            <div style="width:140px;height:104px;background:#f4f3ef;padding:8px;box-sizing:border-box;display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:1fr;gap:2px">
+              <div style="background:#ddd"></div><div style="background:#ccc"></div><div style="background:#ddd"></div><div style="background:#ccc"></div><div style="background:#ddd"></div><div style="background:#ccc"></div><div style="background:#ccc"></div><div style="background:#ddd"></div><div style="background:#ccc"></div><div style="background:#ddd"></div><div style="background:#ccc"></div><div style="background:#ddd"></div><div style="background:#ddd"></div><div style="background:#ccc"></div><div style="background:#ddd"></div><div style="background:#ccc"></div><div style="background:#ddd"></div><div style="background:#ccc"></div><div style="background:#ccc"></div><div style="background:#ddd"></div><div style="background:#ccc"></div><div style="background:#ddd"></div><div style="background:#ccc"></div><div style="background:#ddd"></div>
+            </div>
+          </div>
+          <div style="padding:12px 14px;flex:1">
+            <div style="font-size:14px;color:#fff;margin-bottom:5px">Master matrix</div>
+            <div style="font-size:12px;color:rgb(173,169,169);line-height:1.35">A4 landscape, 1 page. Round × Area grid — the organiser cheat sheet.</div>
+          </div>
+          <div style="display:flex;gap:6px;padding:0 14px 14px">
+            <button onClick="{{ dlMatrix }}" style="background:transparent;border:1px solid rgb(80,80,80);color:#fff;padding:7px 12px;font-size:12px;border-radius:2px;cursor:pointer;flex:1" style-hover="background:rgb(25,28,33)"><i class="fa-solid fa-file-pdf" style="margin-right:6px;color:rgb(140,167,236)"></i>PDF · 1 page</button>
+          </div>
+        </div>
+
+        <div style="background:rgb(10,12,15);display:flex;flex-direction:column">
+          <div style="height:170px;display:flex;align-items:center;justify-content:center;background:rgb(25,28,33)">
+            <div style="width:104px;height:140px;background:#f4f3ef;padding:10px;box-sizing:border-box;display:flex;flex-direction:column;gap:4px">
+              <div style="width:60%;height:6px;background:#333"></div>
+              <div style="width:40%;height:4px;background:#2aa87c;margin-bottom:4px"></div>
+              <div style="width:90%;height:3px;background:#bbb"></div><div style="width:85%;height:3px;background:#bbb"></div><div style="width:88%;height:3px;background:#bbb"></div><div style="width:70%;height:3px;background:#bbb"></div>
+              <div style="width:50%;height:4px;background:#333;margin-top:5px"></div>
+              <div style="width:90%;height:3px;background:#bbb"></div><div style="width:80%;height:3px;background:#bbb"></div>
+            </div>
+          </div>
+          <div style="padding:12px 14px;flex:1">
+            <div style="font-size:14px;color:#fff;margin-bottom:5px">Quality report</div>
+            <div style="font-size:12px;color:rgb(173,169,169);line-height:1.35">Summary numbers plus per-person never-met lists.</div>
+          </div>
+          <div style="display:flex;gap:6px;padding:0 14px 14px">
+            <button onClick="{{ dlReport }}" style="background:transparent;border:1px solid rgb(80,80,80);color:#fff;padding:7px 12px;font-size:12px;border-radius:2px;cursor:pointer;flex:1" style-hover="background:rgb(25,28,33)"><i class="fa-solid fa-file-pdf" style="margin-right:6px;color:rgb(140,167,236)"></i>PDF · summary + per-person</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgb(10,12,15);display:flex;flex-direction:column">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px">
+          <span style="font-size:16px;color:rgb(190,190,190)">Name tag layout</span>
+          <span style="font-size:11px;color:rgb(135,135,135);font-variant-numeric:tabular-nums">{{ tagMeta }}</span>
+        </div>
+        <div style="height:1px;background:rgb(88,88,88)"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:28px;padding:16px;align-items:flex-start">
+          <div style="flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:14px;max-width:380px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><div style="font-size:12px;color:rgb(135,135,135);margin-bottom:5px">Tag width (mm)</div>
+                <input type="number" value="{{ tagW }}" onChange="{{ onTagW }}" min="40" max="105" step="5" style="width:100%;box-sizing:border-box;background:transparent;border:1px solid rgb(56,66,83);color:#fff;padding:8px 10px;font-size:14px;border-radius:2px;font-variant-numeric:tabular-nums"></div>
+              <div><div style="font-size:12px;color:rgb(135,135,135);margin-bottom:5px">Tag height (mm)</div>
+                <input type="number" value="{{ tagH }}" onChange="{{ onTagH }}" min="25" max="105" step="5" style="width:100%;box-sizing:border-box;background:transparent;border:1px solid rgb(56,66,83);color:#fff;padding:8px 10px;font-size:14px;border-radius:2px;font-variant-numeric:tabular-nums"></div>
+            </div>
+            <div><div style="font-size:12px;color:rgb(135,135,135);margin-bottom:6px">Name alignment</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <sc-for list="{{ tagAlignChips }}" as="tca" hint-placeholder-count="2">
+                  <div onClick="{{ tca.onClick }}" style="cursor:pointer;padding:6px 12px;border:1px solid {{ tca.border }};border-radius:2px;font-size:12px;color:{{ tca.color }}" style-hover="background:rgb(25,28,33)">{{ tca.label }}</div>
+                </sc-for>
+              </div></div>
+            <div><div style="font-size:12px;color:rgb(135,135,135);margin-bottom:6px">Company position</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <sc-for list="{{ tagPosChips }}" as="tcp" hint-placeholder-count="2">
+                  <div onClick="{{ tcp.onClick }}" style="cursor:pointer;padding:6px 12px;border:1px solid {{ tcp.border }};border-radius:2px;font-size:12px;color:{{ tcp.color }}" style-hover="background:rgb(25,28,33)">{{ tcp.label }}</div>
+                </sc-for>
+              </div></div>
+            <div><div style="font-size:12px;color:rgb(135,135,135);margin-bottom:6px">Name size</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <sc-for list="{{ tagSizeChips }}" as="tcs" hint-placeholder-count="3">
+                  <div onClick="{{ tcs.onClick }}" style="cursor:pointer;padding:6px 12px;border:1px solid {{ tcs.border }};border-radius:2px;font-size:12px;color:{{ tcs.color }}" style-hover="background:rgb(25,28,33)">{{ tcs.label }}</div>
+                </sc-for>
+              </div></div>
+          </div>
+          <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+            <div>
+              <div style="font-size:11px;color:rgb(135,135,135);margin-bottom:7px">TAG PREVIEW</div>
+              <div style="width:240px;height:{{ tagPrevH }};background:#f4f3ef;border-radius:1px;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden">
+                <sc-if value="{{ tagCompanyUnder }}" hint-placeholder-val="{{ true }}">
+                  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:5px;width:100%">
+                    <div style="font-weight:700;color:#1a1a1a;font-size:{{ tagNameFs }};text-align:{{ tagAlignCss }};width:100%;line-height:1.1">{{ tagSampleName }}</div>
+                    <div style="color:#6b675e;font-size:12px;text-align:{{ tagAlignCss }};width:100%">{{ tagSampleCompany }}</div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ tagCompanyBottom }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;width:100%">
+                    <div style="font-weight:700;color:#1a1a1a;font-size:{{ tagNameFs }};text-align:{{ tagAlignCss }};width:100%;line-height:1.1">{{ tagSampleName }}</div>
+                  </div>
+                  <div style="color:#6b675e;font-size:12px;text-align:{{ tagAlignCss }};width:100%">{{ tagSampleCompany }}</div>
+                </sc-if>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:rgb(135,135,135);margin-bottom:7px">PAGE · A4</div>
+              <div style="width:150px;height:212px;background:#f4f3ef;border-radius:1px;padding:7px;box-sizing:border-box;display:grid;grid-template-columns:{{ tagGridCols }};grid-auto-rows:1fr;gap:3px">
+                <sc-for list="{{ tagPageCells }}" as="tpc" hint-placeholder-count="10">
+                  <div style="border:1px dashed #b9b4a8"></div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgb(10,12,15);display:flex;flex-direction:column">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px">
+          <span style="font-size:16px;color:rgb(190,190,190)">Attendee emails</span>
+          <span style="font-size:11px;color:rgb(135,135,135)">personalised per attendee</span>
+          <div style="display:flex;border:1px solid rgb(80,80,80);border-radius:2px;overflow:hidden">
+            <div onClick="{{ emailModeInvite }}" style="padding:6px 12px;font-size:12px;cursor:pointer;color:{{ emInvColor }};background:{{ emInvBg }}">Invitation</div>
+            <div onClick="{{ emailModeFollow }}" style="padding:6px 12px;font-size:12px;cursor:pointer;color:{{ emFolColor }};background:{{ emFolBg }};border-left:1px solid rgb(80,80,80)">Follow-up</div>
+          </div>
+          <div style="flex:1"></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button onClick="{{ emailPrev }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:6px 10px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="color:#fff"><i class="fa-solid fa-chevron-left"></i></button>
+            <span style="font-size:12px;color:rgb(173,169,169);font-variant-numeric:tabular-nums;min-width:64px;text-align:center">{{ emailCounter }}</span>
+            <button onClick="{{ emailNext }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:6px 10px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="color:#fff"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+          <button onClick="{{ copyEmail }}" style="background:transparent;border:1px solid rgb(80,80,80);color:#fff;padding:7px 12px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="background:rgb(25,28,33)"><i class="fa-regular fa-copy" style="margin-right:6px;font-size:11px"></i>Copy text</button>
+          <button onClick="{{ dlEml }}" style="background:transparent;border:1px solid rgb(80,80,80);color:#fff;padding:7px 12px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="background:rgb(25,28,33)"><i class="fa-solid fa-download" style="margin-right:6px;font-size:11px"></i>Download .eml</button>
+          <button onClick="{{ dlAllEmails }}" style="background:rgb(25,96,159);border:none;color:#fff;padding:8px 14px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="filter:brightness(1.15)"><i class="fa-solid fa-file-arrow-down" style="margin-right:6px;font-size:11px"></i>Generate all</button>
+        </div>
+        <div style="height:1px;background:rgb(88,88,88)"></div>
+        <div style="padding:16px;display:flex;justify-content:center;background:rgb(25,28,33)">
+          <div style="width:100%;max-width:620px;background:#f4f3ef;border-radius:1px;color:#1c1c1c;font-size:13px;line-height:1.5">
+            <div style="padding:12px 20px;border-bottom:1px solid #ddd8ce">
+              <div style="display:flex;gap:8px"><span style="color:#8a8578;width:58px;flex:none">To</span><span style="color:#1c1c1c">{{ emailTo }}</span></div>
+              <div style="display:flex;gap:8px;margin-top:4px"><span style="color:#8a8578;width:58px;flex:none">Subject</span><span style="color:#1c1c1c;font-weight:700">{{ emailSubject }}</span></div>
+            </div>
+            <div style="padding:18px 20px 22px">
+              <div style="margin-bottom:12px">{{ emailGreeting }}</div>
+              <div style="margin-bottom:14px;color:#4a463d">{{ emailIntro }}</div>
+              <div style="border:1px solid #ddd8ce;border-radius:1px;margin-bottom:14px">
+                <div style="display:grid;grid-template-columns:{{ emailGridCols }};padding:7px 12px;background:#ece9e1;font-size:11px;color:#8a8578;letter-spacing:.04em">
+                  <span>{{ emailCol1 }}</span><span>{{ emailCol2 }}</span><span>{{ emailCol3 }}</span>
+                </div>
+                <sc-for list="{{ emailPlanRows }}" as="er" hint-placeholder-count="5">
+                  <div style="display:grid;grid-template-columns:{{ emailGridCols }};padding:7px 12px;border-top:1px solid #ece9e1;font-size:12px;font-variant-numeric:tabular-nums">
+                    <span style="color:#8a8578">{{ er.c1 }}</span>
+                    <span style="font-weight:700">{{ er.c2 }}</span>
+                    <span style="color:#4a463d">{{ er.c3 }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="color:#4a463d;margin-bottom:12px">{{ emailOutro }}</div>
+              <div>See you there,<br>The organising team</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isRun }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Run" style="flex:1;display:flex;flex-direction:column;min-height:0;position:relative">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;padding:10px 16px;background:rgb(10,12,15);border-bottom:1px solid rgb(61,61,61)">
+        <div>
+          <div style="font-size:11px;color:rgb(135,135,135);margin-bottom:3px">ROUND</div>
+          <div style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;color:#fff">{{ runRoundLabel }}</div>
+        </div>
+        <div style="border:1px solid {{ phaseBorder }};color:{{ phaseColor }};padding:5px 12px;border-radius:2px;font-size:12px;letter-spacing:.06em;animation:{{ phaseAnim }}">{{ phaseLabel }}</div>
+        <div style="flex:1;text-align:center;min-width:180px">
+          <span style="font-size:clamp(44px,8vw,120px);font-weight:300;font-variant-numeric:tabular-nums;line-height:1;color:{{ timerColor }};animation:{{ timerAnim }}">{{ timerText }}</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <button onClick="{{ startPause }}" style="background:rgb(25,96,159);border:none;color:#fff;padding:9px 16px;font-size:13px;border-radius:2px;cursor:pointer" style-hover="filter:brightness(1.15)">{{ startPauseLabel }}</button>
+          <button onClick="{{ skipPhase }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:8px 12px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="color:#fff">Skip phase</button>
+          <button onClick="{{ nextRoundBtn }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:8px 12px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="color:#fff">Next round</button>
+          <button onClick="{{ endRunBtn }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:8px 12px;font-size:12px;border-radius:2px;cursor:pointer" style-hover="color:rgb(189,51,51);border-color:rgb(189,51,51)">End</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 16px;background:rgb(10,12,15);border-bottom:1px solid rgb(51,51,51)">
+        <div style="position:relative">
+          <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:9px;top:9px;font-size:11px;color:rgb(135,135,135)"></i>
+          <input value="{{ search }}" onInput="{{ onSearch }}" placeholder="Where's who? Type a name" style="background:transparent;border:1px solid rgb(56,66,83);color:#fff;padding:7px 10px 7px 27px;font-size:12px;border-radius:2px;width:200px">
+        </div>
+        <div onClick="{{ toggleGhost }}" style="cursor:pointer;padding:7px 12px;border:1px solid {{ ghostBorder }};border-radius:2px;font-size:12px;color:{{ ghostColor }}" style-hover="background:rgb(25,28,33)"><i class="fa-regular fa-eye" style="margin-right:6px;font-size:11px"></i>Next-round ghost</div>
+        <div onClick="{{ toggleEdit }}" style="cursor:pointer;padding:7px 12px;border:1px solid {{ editBorder }};border-radius:2px;font-size:12px;color:{{ editColor }}" style-hover="background:rgb(25,28,33)"><i class="fa-solid fa-up-down-left-right" style="margin-right:6px;font-size:11px"></i>{{ editLabel }}</div>
+        <div onClick="{{ toggleDemo }}" style="cursor:pointer;padding:7px 12px;border:1px solid {{ demoBorder }};border-radius:2px;font-size:12px;color:{{ demoColor }}" style-hover="background:rgb(25,28,33)">×10 demo speed</div>
+        <div onClick="{{ toggleSound }}" style="cursor:pointer;padding:7px 12px;border:1px solid {{ soundBorder }};border-radius:2px;font-size:12px;color:{{ soundColor }}" style-hover="background:rgb(25,28,33)"><i class="{{ soundIcon }}" style="margin-right:6px;font-size:11px"></i>Sound</div>
+        <div style="flex:1"></div>
+        <span style="font-size:11px;color:rgb(135,135,135)">{{ runHint }}</span>
+      </div>
+      <div style="height:3px;background:rgb(51,51,51);position:relative;overflow:hidden">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:{{ runProgress }};background:{{ progColor }};transition:width .3s linear"></div>
+      </div>
+      <sc-if value="{{ icebreakerOn }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:baseline;justify-content:center;gap:12px;padding:11px 16px;background:rgb(46,53,65);border-bottom:1px solid rgb(61,61,61);flex-wrap:wrap">
+          <span style="font-size:11px;letter-spacing:.08em;color:rgb(140,167,236);white-space:nowrap">{{ icebreakerLabel }}</span>
+          <span style="font-size:16px;color:#fff;text-wrap:pretty">{{ icebreakerText }}</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isGap }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;align-content:start">
+          <sc-for list="{{ gapRows }}" as="gr" hint-placeholder-count="8">
+            <div style="background:rgb(10,12,15);border:1px solid rgb(61,61,61);border-radius:2px;padding:10px 14px">
+              <div style="font-size:13px;font-weight:700;color:#fff">{{ gr.name }}</div>
+              <div style="font-size:12px;color:rgb(173,169,169);margin-top:3px;line-height:1.4">find: <span style="color:rgb(57,233,169)">{{ gr.targets }}</span></div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ floorWide }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;position:relative;margin:8px;min-height:460px">
+          <sc-for list="{{ areaCards }}" as="ac" hint-placeholder-count="10">
+            <div onPointerDown="{{ ac.onDown }}" style="position:absolute;left:{{ ac.left }};top:{{ ac.top }};width:18.8%;height:46%;background:rgb(10,12,15);border:1px solid {{ ac.border }};border-radius:2px;padding:10px 12px;box-sizing:border-box;cursor:{{ ac.cursor }};animation:{{ ac.anim }};overflow:hidden;user-select:none;touch-action:none">
+              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+                <span style="font-size:22px;font-weight:700;color:{{ ac.letterColor }}">{{ ac.letter }}</span>
+                <span style="font-size:11px;color:rgb(135,135,135)">{{ ac.count }}</span>
+              </div>
+              <sc-for list="{{ ac.members }}" as="m" hint-placeholder-count="4">
+                <div style="display:flex;align-items:baseline;gap:6px;padding:3px 0;border-top:1px solid rgb(51,51,51)">
+                  <span style="font-size:13px;color:{{ m.nameColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</span>
+                  <span style="font-size:11px;color:rgb(135,135,135);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1">{{ m.company }}</span>
+                  <span style="font-size:12px;color:rgb(44,255,170);font-variant-numeric:tabular-nums;white-space:nowrap">{{ m.arrow }}</span>
+                </div>
+              </sc-for>
+              <div style="font-size:11px;color:rgb(135,135,135);margin-top:6px;opacity:.75">{{ ac.ghost }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ floorNarrow }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;padding:8px">
+          <sc-for list="{{ areaCards }}" as="acn" hint-placeholder-count="10">
+            <div style="background:rgb(10,12,15);border:1px solid {{ acn.border }};border-radius:2px;padding:10px 12px;animation:{{ acn.anim }}">
+              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+                <span style="font-size:20px;font-weight:700;color:{{ acn.letterColor }}">{{ acn.letter }}</span>
+                <span style="font-size:11px;color:rgb(135,135,135)">{{ acn.count }}</span>
+              </div>
+              <sc-for list="{{ acn.members }}" as="mn2" hint-placeholder-count="4">
+                <div style="display:flex;align-items:baseline;gap:6px;padding:3px 0;border-top:1px solid rgb(51,51,51)">
+                  <span style="font-size:13px;color:{{ mn2.nameColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ mn2.name }}</span>
+                  <span style="font-size:12px;color:rgb(44,255,170);margin-left:auto;font-variant-numeric:tabular-nums">{{ mn2.arrow }}</span>
+                </div>
+              </sc-for>
+              <div style="font-size:11px;color:rgb(135,135,135);margin-top:6px;opacity:.75">{{ acn.ghost }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isBreak }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;z-index:20">
+          <div style="background:rgb(10,12,15);border:1px solid rgb(58,57,57);border-radius:2px;padding:36px 48px;text-align:center;max-width:90%">
+            <div style="font-size:12px;letter-spacing:.1em;color:rgb(140,167,236);margin-bottom:10px">BREAK</div>
+            <div style="font-size:26px;color:#fff;margin-bottom:14px">{{ breakLabel }}</div>
+            <div style="font-size:clamp(56px,12vw,140px);font-weight:300;font-variant-numeric:tabular-nums;color:rgb(140,167,236);line-height:1;margin-bottom:22px">{{ timerText }}</div>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+              <button onClick="{{ skipPhase }}" style="background:rgb(25,96,159);border:none;color:#fff;padding:10px 18px;font-size:13px;border-radius:2px;cursor:pointer" style-hover="filter:brightness(1.15)">Skip break</button>
+              <button onClick="{{ extendBreak }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:9px 16px;font-size:13px;border-radius:2px;cursor:pointer" style-hover="color:#fff">+1 minute</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isFinished }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:20">
+          <div style="background:rgb(10,12,15);border:1px solid rgb(58,57,57);border-radius:2px;padding:36px 48px;text-align:center;max-width:90%">
+            <div style="font-size:12px;letter-spacing:.1em;color:rgb(57,233,169);margin-bottom:10px">EVENT COMPLETE</div>
+            <div style="font-size:30px;color:#fff;margin-bottom:12px">That's a wrap</div>
+            <div style="font-size:14px;color:rgb(201,201,201);line-height:1.5;margin-bottom:22px">{{ finText }}</div>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+              <button onClick="{{ goScheduleBtn }}" style="background:rgb(25,96,159);border:none;color:#fff;padding:10px 18px;font-size:13px;border-radius:2px;cursor:pointer" style-hover="filter:brightness(1.15)">View quality report</button>
+              <button onClick="{{ startGap }}" style="background:transparent;border:1px solid rgb(57,233,169);color:rgb(57,233,169);padding:9px 16px;font-size:13px;border-radius:2px;cursor:pointer" style-hover="background:rgba(44,255,170,.08)">Meet-the-gap round · 5:00</button>
+              <button onClick="{{ resetRun }}" style="background:transparent;border:1px solid rgb(80,80,80);color:rgb(173,169,169);padding:9px 16px;font-size:13px;border-radius:2px;cursor:pointer" style-hover="color:#fff">Reset run</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:rgb(46,53,65);border:1px solid rgb(80,80,80);border-radius:2px;padding:10px 18px;font-size:13px;color:#fff;z-index:50">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startPage&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;setup&quot;,&quot;schedule&quot;,&quot;print&quot;,&quot;run&quot;],&quot;default&quot;:&quot;setup&quot;,&quot;tsType&quot;:&quot;'setup'|'schedule'|'print'|'run'&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;demoSpeed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:1,&quot;max&quot;:20,&quot;step&quot;:1,&quot;unit&quot;:&quot;×&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Demo&quot;}}">
+function mulberry32(seed){let s=seed>>>0;return function(){s=(s+0x6d2b79f5)>>>0;let t=s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+const LETTERS='ABCDEFGHIJKLMNOP';
+const ICEBREAKERS=['What are you working on right now that excites you?','What\u2019s the best thing you\u2019ve shipped or finished this year?','What problem would you love someone in this room to solve?','What\u2019s a tool or habit you couldn\u2019t work without?','What was your first job \u2014 and what did it teach you?','What are you trying to learn at the moment?','What\u2019s a common belief in your field you disagree with?','If you had a free month, what would you build or do?','What\u2019s the best piece of advice you\u2019ve been given?','Who would you love an introduction to \u2014 and why?','What does a perfect workday look like for you?','What\u2019s something people usually get wrong about your job?'];
+function buildFollowText(pe,plan,projName,roster,bodyOnly){
+  const met=plan.met[pe.id];const rows=roster.filter(function(o){return met.has(o.id);});
+  const lines=[];
+  if(!bodyOnly){lines.push('To: '+(pe.email||''),'Subject: People you met \u2014 '+projName,'');}
+  lines.push('Hi '+pe.name.split(' ')[0]+',','','Great meeting you today! Here are the '+rows.length+' people you met, with contact details \u2014 drop them a line while it\u2019s fresh.','');
+  rows.forEach(function(o){lines.push(o.name+' \u00b7 '+(o.company||'\u2013')+' \u00b7 '+(o.email||'\u2013'));});
+  lines.push('','See you at the next one,','The organising team');
+  return lines.join('\n');
+}
+const FIRST=['Alice','Marcus','Priya','Tomas','Elena','Jack','Nina','Omar','Sofia','Ben','Clara','Devon','Aisha','Felix','Grace','Hugo','Isla','Jonas','Kira','Liam','Maya','Noah','Olive','Pavel','Quinn','Rosa','Sam','Tara','Ines','Vera','Wes','Lena','Yusuf','Zoe','Anna','Boris','Chloe','Dmitri','Esme','Franco'];
+const LAST=['Kowalski','Nguyen','Berg','Ortiz','Fischer','Adeyemi','Lindqvist','Moretti','Tanaka','Novak','Weber','Silva','Haddad','Janssen','O\u2019Brien','Petrov','Costa','Meyer','Larsen','Duval'];
+const COMPANIES=['Helios Energy','Nordbank','Vertex Labs','Cobalt Media','Aria Health','Straton Legal','Blue Harbor','Quanta Systems','Marlow & Co','Iron Gate','Fieldstone','Ostra Foods'];
+function makeRoster(){const out=[];for(let i=0;i<40;i++){const name=FIRST[i]+' '+LAST[i%20];const dom=COMPANIES[i%12].toLowerCase().replace(/[^a-z]/g,'')+'.com';out.push({id:'p'+i,name:name,company:COMPANIES[i%12],email:FIRST[i].toLowerCase()+'.'+LAST[i%20].toLowerCase().replace(/[^a-z]/g,'')+'@'+dom});}return out;}
+function defParams(){return {groupSize:4,areaCount:10,numRounds:10,roundSeconds:180,moveSeconds:30,avoidSameCompany:true,breaks:[{afterRound:5,seconds:600,label:'Coffee break'}]};}
+function parseRosterText(text,fname){
+  let rows=[];
+  if(/\.json$/i.test(fname)){
+    const arr=JSON.parse(text);if(!Array.isArray(arr))throw new Error('bad');
+    rows=arr.map(function(r){return {name:String(r.name||r.Name||'').trim(),company:String(r.company||r.Company||'').trim(),email:String(r.email||r.Email||'').trim()};});
+  } else {
+    const lines=text.split(/\r?\n/).filter(function(l){return l.trim().length;});
+    if(!lines.length)return [];
+    const split=function(l){return l.split(/[,;\t]/).map(function(c){return c.replace(/^"|"$/g,'').trim();});};
+    let ni=0,ci=1,ei=2;const head=split(lines[0]).map(function(h){return h.toLowerCase();});
+    let start=0;
+    const hn=head.findIndex(function(h){return h==='name'||h==='full name'||h==='attendee';});
+    if(hn>=0){ni=hn;
+      const hc=head.findIndex(function(h){return h==='company'||h==='organization'||h==='organisation'||h==='org';});ci=hc>=0?hc:-1;
+      const he=head.findIndex(function(h){return h==='email'||h==='e-mail'||h==='mail'||h==='email address';});ei=he>=0?he:-1;start=1;}
+    for(let i=start;i<lines.length;i++){const c=split(lines[i]);
+      let em=ei>=0&&c[ei]?c[ei]:'';
+      if(!em&&start===0){const guess=c.find(function(x){return x.indexOf('@')>0;});em=guess||'';}
+      rows.push({name:c[ni]||'',company:ci>=0&&c[ci]?c[ci]:(start===0&&c[1]&&c[1].indexOf('@')<0?c[1]:''),email:em});}
+  }
+  const seen=new Set();const out=[];
+  rows.forEach(function(r,i){if(!r.name)return;const k=r.name.toLowerCase();if(seen.has(k))return;seen.add(k);out.push({id:'u'+i+'_'+Date.now()%100000,name:r.name,company:r.company||'',email:r.email||''});});
+  return out;
+}
+function pairK(a,b){return a<b?a+'|'+b:b+'|'+a;}
+
+function buildPlan(seedNum,roster,params,label){
+  const N=roster.length,A=params.areaCount,G=params.groupSize,R=params.numRounds;
+  const avoid=params.avoidSameCompany;
+  const rng=mulberry32(seedNum);
+  const ids=roster.map(function(p){return p.id;});
+  for(let i=N-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=ids[i];ids[i]=ids[j];ids[j]=t;}
+  const company={};roster.forEach(function(p){company[p.id]=p.company;});
+  // per-round group sizes (under/over-fill safe)
+  const usable=Math.max(1,Math.min(A,Math.floor(N/2)));
+  const sizes=[];let rem=N;
+  for(let a=0;a<usable;a++){const left=usable-a;let s=Math.max(2,Math.min(G,Math.ceil(rem/left)));while(rem-s<2*(left-1)&&s>2)s--;sizes.push(s);rem-=s;}
+  // seeded rounds via coprime multiplier permutations
+  const cops=[];for(let m=1;m<N;m++){let x=m,y=N;while(y){const z=x%y;x=y;y=z;}if(x===1)cops.push(m);}
+  const rounds=[];
+  for(let r=0;r<R;r++){
+    const m=cops[(r*3+1)%cops.length];
+    const perm=[];for(let j=0;j<N;j++)perm.push(ids[(j*m+r*7)%N]);
+    const groups=[];let cur=0;
+    for(let a=0;a<usable;a++){groups.push(perm.slice(cur,cur+sizes[a]));cur+=sizes[a];}
+    rounds.push(groups);
+  }
+  // cost model + hill-climb
+  const pc=new Map();let cost=0;
+  function add(a,b){const k=pairK(a,b);const c=pc.get(k)||0;pc.set(k,c+1);cost+=(c>=1?100:0)+(avoid&&company[a]===company[b]?10:0);}
+  function del(a,b){const k=pairK(a,b);const c=pc.get(k)||0;pc.set(k,c-1);cost-=(c>1?100:0)+(avoid&&company[a]===company[b]?10:0);}
+  rounds.forEach(function(gs){gs.forEach(function(g){for(let i=0;i<g.length;i++)for(let j=i+1;j<g.length;j++)add(g[i],g[j]);});});
+  const t0=Date.now();let iter=0;
+  while(iter<50000&&Date.now()-t0<250&&cost>0){iter++;
+    const r=Math.floor(rng()*R);const gs=rounds[r];if(gs.length<2)break;
+    const gi=Math.floor(rng()*gs.length);let gj=Math.floor(rng()*(gs.length-1));if(gj>=gi)gj++;
+    const ga=gs[gi],gb=gs[gj];
+    const ia=Math.floor(rng()*ga.length),ib=Math.floor(rng()*gb.length);
+    const u=ga[ia],v=gb[ib];
+    const before=cost;
+    for(let w=0;w<ga.length;w++)if(ga[w]!==u)del(u,ga[w]);
+    for(let w=0;w<gb.length;w++)if(gb[w]!==v)del(v,gb[w]);
+    for(let w=0;w<ga.length;w++)if(ga[w]!==u)add(v,ga[w]);
+    for(let w=0;w<gb.length;w++)if(gb[w]!==v)add(u,gb[w]);
+    const delta=cost-before;
+    if(delta<0||(delta===0&&rng()<0.2)){ga[ia]=v;gb[ib]=u;}
+    else{
+      for(let w=0;w<ga.length;w++)if(ga[w]!==u)del(v,ga[w]);
+      for(let w=0;w<gb.length;w++)if(gb[w]!==v)del(u,gb[w]);
+      for(let w=0;w<ga.length;w++)if(ga[w]!==u)add(u,ga[w]);
+      for(let w=0;w<gb.length;w++)if(gb[w]!==v)add(v,gb[w]);
+    }
+  }
+  return finalizePlan(seedNum,label,roster,rounds,company,avoid);
+}
+function finalizePlan(seedNum,label,roster,rounds,company,avoid){
+  const pc=new Map();let total=0,sameCo=0;
+  const met={};roster.forEach(function(p){met[p.id]=new Set();});
+  rounds.forEach(function(gs){gs.forEach(function(g){for(let i=0;i<g.length;i++)for(let j=i+1;j<g.length;j++){total++;const a=g[i],b=g[j];const k=pairK(a,b);pc.set(k,(pc.get(k)||0)+1);met[a].add(b);met[b].add(a);if(company[a]===company[b])sameCo++;}});});
+  let repeats=0;pc.forEach(function(c){if(c>1)repeats+=c-1;});
+  const areaByRound={};roster.forEach(function(p){areaByRound[p.id]=[];});
+  rounds.forEach(function(gs,r){gs.forEach(function(g,a){g.forEach(function(id){areaByRound[id][r]=a;});});});
+  return {seed:seedNum,label:label,rounds:rounds,quality:{total:total,unique:pc.size,repeats:repeats,sameCo:sameCo},met:met,areaByRound:areaByRound};
+}
+
+function buildEmailText(pe,plan,p,projName,byId,bodyOnly){
+  const talkMin=Math.floor((p.roundSeconds-p.moveSeconds)/60),talkSec=(p.roundSeconds-p.moveSeconds)%60;
+  const lines=[];
+  if(!bodyOnly){lines.push('To: '+(pe.email||''),'Subject: Your personal plan \u2014 '+projName,'');}
+  lines.push('Hi '+pe.name.split(' ')[0]+',','','Your speed-networking schedule is below: '+plan.rounds.length+' rounds of '+talkMin+':'+(talkSec<10?'0':'')+talkSec+' each, with '+p.moveSeconds+' seconds to move between areas. Areas are marked with large letter signs \u2014 just find yours before each round starts.','');
+  plan.rounds.forEach(function(gs,r){
+    const a=plan.areaByRound[pe.id][r];
+    if(a===undefined){lines.push('Round '+(r+1)+' \u2014 sitting out this round');return;}
+    const meet=gs[a].filter(function(id){return id!==pe.id;}).map(function(id){return byId[id].name;}).join(', ');
+    lines.push('Round '+(r+1)+' \u00b7 Area '+LETTERS[a]+' \u2014 meet '+meet);
+  });
+  lines.push('','Tip: you don\u2019t need to remember any of this \u2014 you\u2019ll also get a printed tear-off plan at check-in.','','See you there,','The organising team');
+  return lines.join('\n');
+}
+function downloadText(name,txt,mime){const blob=new Blob([txt],{type:mime||'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},4000);}
+class Component extends DCLogic {
+  constructor(props){super(props);
+    let floor=null;try{floor=JSON.parse(localStorage.getItem('sns:floorV1')||'null');}catch(e){}
+    let library=[];try{library=JSON.parse(localStorage.getItem('sns:projectsV1')||'null')||[];}catch(e){}
+    if(!library.length){library=[{version:1,type:'sns-schedule',id:'demo',name:'Demo event',savedAt:Date.now(),roster:makeRoster(),params:defParams(),planIdx:0,plans:[]}];}
+    const act=library[0];
+    this.roster=act.roster||[];
+    this.byId={};this.roster.forEach(function(p){this.byId[p.id]=p;},this);
+    this.fileRef=React.createRef();
+    this.csvRef=React.createRef();
+    this.state={page:this.props.startPage||'setup',plans:[],planIdx:0,activeId:act.id,
+      params:act.params||defParams(),
+      dirty:false,viewMode:'matrix',personSlider:0,search:'',editFloor:false,ghost:false,demo:false,toast:'',libOpen:false,library:library,
+      form:{name:'',company:'',email:''},formEditId:null,sound:(function(){try{return localStorage.getItem('sns:soundV1')!=='off';}catch(e){return true;}})(),emailMode:'invite',
+      floor:floor,isNarrow:typeof window!=='undefined'&&window.innerWidth<760};
+    this.run=null; // {round, phase, remainMs, last, paused}
+  }
+  componentDidMount(){
+    const self=this;
+    const act=this.state.library.find(function(en){return en.id===self.state.activeId;});
+    if(act&&act.plans&&act.plans.length)this.loadEntry(act,this.state.page);
+    else this.buildPlans();
+    this._iv=setInterval(this.tick.bind(this),250);
+    this._rs=function(){this.setState({isNarrow:window.innerWidth<760});}.bind(this);
+    window.addEventListener('resize',this._rs);
+  }
+  componentWillUnmount(){clearInterval(this._iv);window.removeEventListener('resize',this._rs);}
+  speed(){return this.state.demo?10:(this.props.demoSpeed?Number(this.props.demoSpeed):1);}
+  tick(){
+    const r=this.run;if(!r||r.paused||r.phase==='idle'||r.phase==='finished')return;
+    const now=Date.now();r.remainMs-=(now-r.last)*this.speed();r.last=now;
+    if(r.remainMs<=0)this.advance();
+    this.forceUpdate();
+  }
+  chime(kind){if(!this.state.sound)return;try{
+    if(!this._ac)this._ac=new (window.AudioContext||window.webkitAudioContext)();
+    const ac=this._ac;if(ac.state==='suspended')ac.resume();
+    const notes=kind==='start'?[[660,0],[880,0.14]]:[[523,0],[392,0.14]];
+    notes.forEach(function(n){const o=ac.createOscillator();const g=ac.createGain();o.type='sine';o.frequency.value=n[0];o.connect(g);g.connect(ac.destination);const t=ac.currentTime+n[1];g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.18,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+0.35);o.start(t);o.stop(t+0.4);});
+  }catch(e){}}
+  durMs(phase){const p=this.state.params;
+    if(phase==='conversation')return Math.max(10,(p.roundSeconds-p.moveSeconds))*1000;
+    if(phase==='move')return p.moveSeconds*1000;
+    if(phase==='gap')return 300000;
+    if(phase==='break'){const b=this.breakAfter(this.run.round+1);return (b?b.seconds:600)*1000;}
+    return 0;}
+  breakAfter(round1){return this.state.params.breaks.find(function(b){return b.afterRound===round1;});}
+  setPhase(phase,round){this.run.phase=phase;if(round!==undefined)this.run.round=round;this.run.remainMs=this.durMs(phase);this.run.durMs=this.run.remainMs;this.run.last=Date.now();if(phase==='conversation')this.chime('start');else if(phase==='move'||phase==='break')this.chime('move');this.forceUpdate();}
+  advance(){
+    const r=this.run,R=this.plan()?this.plan().rounds.length:0;
+    if(r.phase==='gap'){r.phase='finished';this.forceUpdate();return;}
+    if(r.phase==='conversation'){
+      if(r.round>=R-1){r.phase='finished';this.forceUpdate();return;}
+      this.setPhase('move');
+    } else if(r.phase==='move'){
+      if(this.breakAfter(r.round+1))this.setPhase('break');
+      else this.setPhase('conversation',r.round+1);
+    } else if(r.phase==='break'){this.setPhase('conversation',r.round+1);}
+  }
+  plan(){return this.state.plans[this.state.planIdx];}
+  buildPlans(){
+    const self=this;
+    if(!this.roster.length){this.setState({plans:[],planIdx:0,dirty:false,personSlider:0});return;}
+    const seeds=[4021,8177,1360];const plans=[];
+    seeds.forEach(function(s,i){plans.push(buildPlan(s,self.roster,self.state.params,'Plan '+(i+1)));});
+    this.setState({plans:plans,planIdx:0,dirty:false,personSlider:0},function(){self.syncActive();});
+  }
+  syncActive(){
+    const self=this;
+    const lib=this.state.library.map(function(en){
+      if(en.id!==self.state.activeId)return en;
+      const s=self.snapshot(en.name);s.id=en.id;return s;});
+    this.persistLib(lib);
+  }
+  toastMsg(msg){this.setState({toast:msg});clearTimeout(this._tt);this._tt=setTimeout(function(){this.setState({toast:''});}.bind(this),2600);}
+  setParam(key,val){const self=this;const p=Object.assign({},this.state.params);p[key]=val;this.setState({params:p,dirty:true},function(){self.syncActive();});}
+  numHandler(key,min,max){return function(e){let v=parseInt(e.target.value,10);if(isNaN(v))return;v=Math.max(min,Math.min(max,v));this.setParam(key,v);}.bind(this);}
+  defaultFloor(){const f={};const A=this.state.params.areaCount;for(let i=0;i<A;i++){f[LETTERS[i]]={x:(i%5)*20.2+0.6,y:Math.floor(i/5)*51+2};}return f;}
+  getFloor(){return this.state.floor||this.defaultFloor();}
+  startDrag(letter){const self=this;return function(e){
+    if(!self.state.editFloor)return;e.preventDefault();
+    const canvas=e.currentTarget.parentElement;const rect=canvas.getBoundingClientRect();
+    const f=Object.assign({},self.getFloor());const pos=f[letter]||{x:0,y:0};
+    const sx=e.clientX,sy=e.clientY,ox=pos.x,oy=pos.y;
+    function mv(ev){const nx=Math.max(0,Math.min(81,ox+(ev.clientX-sx)/rect.width*100));const ny=Math.max(0,Math.min(53,oy+(ev.clientY-sy)/rect.height*100));const nf=Object.assign({},self.getFloor());nf[letter]={x:Math.round(nx*2)/2,y:Math.round(ny*2)/2};self.setState({floor:nf});}
+    function up(){window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);try{localStorage.setItem('sns:floorV1',JSON.stringify(self.getFloor()));}catch(err){}}
+    window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);
+  };}
+  persistLib(lib){this.setState({library:lib});try{localStorage.setItem('sns:projectsV1',JSON.stringify(lib));}catch(e){}}
+  snapshot(name){return {version:1,type:'sns-schedule',id:'s'+Date.now(),name:name,savedAt:Date.now(),roster:this.roster,params:this.state.params,planIdx:this.state.planIdx,plans:this.state.plans.map(function(pl){return {seed:pl.seed,label:pl.label,rounds:pl.rounds};})};}
+  loadEntry(entry,page){
+    const self=this;
+    this.roster=Array.isArray(entry.roster)?entry.roster:[];
+    this.byId={};this.roster.forEach(function(p){self.byId[p.id]=p;});
+    const company={};this.roster.forEach(function(p){company[p.id]=p.company;});
+    const plans=(entry.plans||[]).map(function(pl){return finalizePlan(pl.seed,pl.label,self.roster,pl.rounds,company,entry.params.avoidSameCompany);});
+    this.run=null;
+    this.setState({activeId:entry.id,params:entry.params||defParams(),plans:plans,planIdx:Math.min(entry.planIdx||0,Math.max(0,plans.length-1)),page:page||(plans.length?'schedule':'setup'),libOpen:false,dirty:false,personSlider:0,search:''});
+    this.toastMsg('Switched to \u201c'+entry.name+'\u201d.');
+  }
+  setTagCfg(key,val){const self=this;const p=this.state.params;const tc=Object.assign({w:90,h:54,align:'center',companyPos:'under',nameSize:'m'},p.tagCfg||{});tc[key]=val;const np=Object.assign({},p,{tagCfg:tc});this.setState({params:np},function(){self.syncActive();});}
+  setIcebreaker(i,val){const self=this;const p=this.state.params;const list=(p.icebreakers||[]).slice();while(list.length<p.numRounds)list.push(null);list[i]=val;const np=Object.assign({},p,{icebreakers:list});this.setState({params:np},function(){self.syncActive();});}
+  resetIcebreakers(){const self=this;const p=this.state.params;const np=Object.assign({},p,{icebreakers:[]});this.setState({params:np},function(){self.syncActive();});}
+  rosterChanged(){const self=this;this.setState({plans:[],planIdx:0,dirty:true},function(){self.syncActive();});}
+  setForm(key){const self=this;return function(e){const f=Object.assign({},self.state.form);f[key]=e.target.value;self.setState({form:f});};}
+  fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));const m=Math.floor(s/60);const ss=s%60;return m+':'+(ss<10?'0':'')+ss;}
+
+  renderVals(){
+    const st=this.state,p=st.params,self=this;
+    const plan=this.plan();const N=this.roster.length;
+    const mnav=[['setup','Setup','01'],['schedule','Schedule','02'],['print','Print','03']];
+    const inRun=st.page==='run';
+    const navItems=mnav.map(function(n){const act=st.page===n[0];return {label:n[1],num:n[2],color:act?'#fff':'rgb(135,135,135)',border:act?'rgb(57,233,169)':'transparent',onClick:function(){self.setState({page:n[0]});}};});
+    const spacePrepare=!inRun;
+    const spaceItems=[
+      {label:'Prepare',icon:'fa-solid fa-sliders',active:!inRun,color:!inRun?'#fff':'rgb(135,135,135)',bg:!inRun?'rgb(46,53,65)':'transparent',onClick:function(){self.setState({page:st.lastPrep||'setup'});}},
+      {label:'Run event',icon:'fa-solid fa-tower-broadcast',active:inRun,color:inRun?'#fff':'rgb(135,135,135)',bg:inRun?'rgb(25,96,159)':'transparent',onClick:function(){self.setState({lastPrep:st.page==='run'?st.lastPrep:st.page,page:'run'});}}];
+    // setup
+    const companies=new Set(this.roster.map(function(x){return x.company;})).size;
+    const rosterRows=this.roster.map(function(x,i){return {n:i+1,name:x.name,company:x.company,email:x.email||'\u2013',
+      bg:st.formEditId===x.id?'rgb(25,28,33)':'transparent',
+      onEdit:function(){self.setState({form:{name:x.name,company:x.company,email:x.email||''},formEditId:x.id});},
+      onDelete:function(){self.roster=self.roster.filter(function(o){return o.id!==x.id;});delete self.byId[x.id];
+        if(st.formEditId===x.id)self.setState({form:{name:'',company:'',email:''},formEditId:null});
+        self.rosterChanged();self.toastMsg(x.name+' removed.');}};});
+    // email template
+    const emailIdx=Math.min(st.emailIdx||0,Math.max(0,N-1));
+    const eperson=this.roster[emailIdx];
+    const projName=(function(){const en=st.library.find(function(x){return x.id===st.activeId;});return en?en.name:'Speed networking';})();
+    const emailPlanRows=[];
+    if(plan&&eperson){
+      plan.rounds.forEach(function(gs,r){
+        const a=plan.areaByRound[eperson.id][r];
+        if(a===undefined){emailPlanRows.push({round:String(r+1),area:'\u2013',meet:'sitting out this round'});return;}
+        const meet=gs[a].filter(function(id){return id!==eperson.id;}).map(function(id){return self.byId[id].name;}).join(', ');
+        emailPlanRows.push({round:String(r+1),area:LETTERS[a],meet:meet});
+      });
+    }
+    const talkMin=Math.floor((p.roundSeconds-p.moveSeconds)/60),talkSec=(p.roundSeconds-p.moveSeconds)%60;
+    const emailSubject='Your personal plan \u2014 '+projName;
+    const emailGreeting=eperson?('Hi '+eperson.name.split(' ')[0]+','):'Hi,';
+    const emailIntro='Your speed-networking schedule is below: '+(plan?plan.rounds.length:p.numRounds)+' rounds of '+talkMin+':'+(talkSec<10?'0':'')+talkSec+' each, with '+p.moveSeconds+' seconds to move between areas. Areas are marked with large letter signs \u2014 just find yours before each round starts.';
+    const emailOutro='Tip: you don\u2019t need to remember any of this \u2014 you\u2019ll also get a printed tear-off plan at check-in.';
+    // name tag config
+    const tc=Object.assign({w:90,h:54,align:'center',companyPos:'under',nameSize:'m'},p.tagCfg||{});
+    const tagCols=Math.max(1,Math.floor(190/tc.w));
+    const tagRows=Math.max(1,Math.floor(277/tc.h));
+    const tagPerPage=tagCols*tagRows;
+    const tagPages=N?Math.ceil(N/tagPerPage):0;
+    const tagChip=function(list,key,cur){return list.map(function(o){const act=cur===o.v;return {label:o.l,color:act?'#fff':'rgb(135,135,135)',border:act?'rgb(57,233,169)':'rgb(80,80,80)',onClick:function(){self.setTagCfg(key,o.v);}};});};
+    const emailMode=st.emailMode||'invite';
+    let emRows,emSubjectV,emIntroV,emOutroV,emailGridCols,emailCol1,emailCol2,emailCol3;
+    if(emailMode==='follow'){
+      emSubjectV='People you met \u2014 '+projName;
+      emIntroV='Great meeting you today! Here are the people you met, with contact details \u2014 drop them a line while it\u2019s fresh.';
+      const unmet=(plan&&eperson)?(N-1-plan.met[eperson.id].size):0;
+      emOutroV=unmet>0?('You didn\u2019t quite get to everyone \u2014 '+unmet+' people were still on your list. Next time!'):'You met everyone \u2014 impressive!';
+      emailGridCols='1fr 1fr 1.2fr';emailCol1='NAME';emailCol2='COMPANY';emailCol3='EMAIL';
+      emRows=(plan&&eperson)?this.roster.filter(function(o){return plan.met[eperson.id].has(o.id);}).map(function(o){return {c1:o.name,c2:o.company||'\u2013',c3:o.email||'\u2013'};}):[];
+    } else {
+      emSubjectV=emailSubject;emIntroV=emailIntro;emOutroV=emailOutro;
+      emailGridCols='64px 64px 1fr';emailCol1='ROUND';emailCol2='AREA';emailCol3='YOU\u2019LL MEET';
+      emRows=emailPlanRows.map(function(r2){return {c1:r2.round,c2:r2.area,c3:r2.meet};});
+    }
+    const seats=p.areaCount*p.groupSize;
+    const meets=p.numRounds*(p.groupSize-1);
+    const sugA=Math.max(1,Math.ceil(N/4));const sugR=Math.max(1,Math.min(sugA,Math.floor(Math.max(0,N-1)/3),12));
+    const suggestionText=N?('For '+N+' people: '+sugA+' areas \u00d7 4 seats, '+sugR+' rounds of 3:00 (2:30 talk + 0:30 move). Each person meets '+(sugR*3)+' of '+(N-1)+' others \u2014 zero repeats achievable in ~'+Math.round(sugR*3.5)+' minutes.'):'Import a people list to get a suggested setup for this project.';
+    const validations=[];
+    if(N===0)validations.push({dot:'rgb(189,51,51)',color:'rgb(189,51,51)',text:'Roster is empty \u2014 import a .csv or .json list of people.'});
+    if(p.groupSize<2)validations.push({dot:'rgb(189,51,51)',color:'rgb(189,51,51)',text:'Group size must be at least 2.'});
+    if(seats<N)validations.push({dot:'rgb(189,51,51)',color:'rgb(189,51,51)',text:'Only '+seats+' seats for '+N+' people \u2014 add areas or raise group size.'});
+    else if(seats>N)validations.push({dot:'rgb(255,114,70)',color:'rgb(255,114,70)',text:(seats-N)+' empty seats \u2014 some groups will run smaller.'});
+    p.breaks.forEach(function(b){if(b.afterRound<1||b.afterRound>p.numRounds-1)validations.push({dot:'rgb(189,51,51)',color:'rgb(189,51,51)',text:'Break after round '+b.afterRound+' is outside 1\u2013'+(p.numRounds-1)+'.'});});
+    if(validations.length===0)validations.push({dot:'rgb(57,233,169)',color:'rgb(57,233,169)',text:'Ready \u2014 '+seats+' seats / '+N+' people \u00b7 each meets '+Math.min(meets,N-1)+' of '+(N-1)+'.'});
+    if(st.dirty)validations.push({dot:'rgb(140,167,236)',color:'rgb(140,167,236)',text:'Parameters changed \u2014 regenerate to apply.'});
+    const blocked=validations.some(function(v){return v.color==='rgb(189,51,51)';});
+    const breakRows=p.breaks.map(function(b,i){return {label:b.label,desc:'after round '+b.afterRound+' \u00b7 '+Math.round(b.seconds/60)+' min',onRemove:function(){const bs=p.breaks.slice();bs.splice(i,1);self.setParam('breaks',bs);}};});
+    // schedule
+    const planChips=st.plans.map(function(pl,i){const act=i===st.planIdx;return {label:pl.label,sub:pl.quality.repeats+' rpt \u00b7 '+pl.quality.sameCo+' same-co',subColor:pl.quality.repeats===0?'rgb(57,233,169)':'rgb(255,114,70)',color:act?'#fff':'rgb(173,169,169)',border:act?'rgb(57,233,169)':'rgb(80,80,80)',onClick:function(){self.setState({planIdx:i,personSlider:0});}};});
+    const q=plan?plan.quality:{total:0,unique:0,repeats:0,sameCo:0};
+    const avgNew=(plan&&N)?(Array.from(Object.values(plan.met)).reduce(function(a,s){return a+s.size;},0)/N):0;
+    const statCards=[
+      {k:'MEETINGS',v:String(q.total),color:'#fff',sub:p.numRounds+' rounds'},
+      {k:'UNIQUE PAIRS',v:String(q.unique),color:'#fff',sub:'of '+q.total+' meetings'},
+      {k:'REPEATS',v:String(q.repeats),color:q.repeats===0?'rgb(57,233,169)':'rgb(189,51,51)',sub:q.repeats===0?'perfect':'to review'},
+      {k:'SAME COMPANY',v:String(q.sameCo),color:q.sameCo===0?'rgb(57,233,169)':'rgb(173,169,169)',sub:p.avoidSameCompany?'minimised':'not avoided'},
+      {k:'AVG NEW PEOPLE',v:avgNew.toFixed(1),color:'rgb(57,233,169)',sub:'of '+(N-1)+' possible'}];
+    const qualityNote=plan?('Seed '+plan.seed+'. Every person\u2019s plan is below \u2014 slide through the roster to see exactly who each person will not get to meet, worst cases first.'):'';
+    // never-met explorer
+    let sorted=[];if(plan){sorted=this.roster.slice().sort(function(a,b){return (N-1-plan.met[b.id].size)-(N-1-plan.met[a.id].size);});}
+    const sel=sorted[Math.min(st.personSlider,Math.max(0,sorted.length-1))];
+    const selNeverList=[];let selMet=0,selNever=0;
+    if(sel&&plan){const ms=plan.met[sel.id];selMet=ms.size;
+      this.roster.forEach(function(o){if(o.id!==sel.id&&!ms.has(o.id)){selNeverList.push({name:o.name,company:o.company});}});
+      selNever=selNeverList.length;}
+    // matrix
+    const A=plan?plan.rounds[0].length:p.areaCount;
+    const areaHeads=[];for(let a=0;a<A;a++)areaHeads.push({letter:LETTERS[a]});
+    const matrixRows=plan?plan.rounds.map(function(gs,r){return {label:(r+1<10?'0':'')+(r+1),cells:gs.map(function(g){return {names:g.map(function(id){return self.byId[id].name;})};})};}):[];
+    const roundHeads=plan?plan.rounds.map(function(_,r){return 'R'+(r+1);}):[];
+    const minNever=Math.max(0,N-1-(plan?plan.rounds.length*(p.groupSize-1):0));
+    const personRows=plan?this.roster.map(function(pe){const cells=plan.areaByRound[pe.id].map(function(a){return a===undefined?'\u2013':LETTERS[a];});const nev=N-1-plan.met[pe.id].size;return {name:pe.name,companyShort:pe.company.split(' ')[0],cells:cells,never:String(nev),neverColor:nev<=minNever?'rgb(57,233,169)':(nev>minNever+3?'rgb(255,114,70)':'rgb(173,169,169)')};}):[];
+    // run
+    const r=this.run;const phase=r?r.phase:'idle';
+    const R=plan?plan.rounds.length:0;
+    const runRound=r?r.round:0;
+    const phaseMap={idle:['READY','rgb(173,169,169)','rgb(80,80,80)','none'],conversation:['CONVERSATION','rgb(57,233,169)','rgb(57,233,169)','none'],move:['MOVE \u2014 FIND YOUR NEXT AREA','rgb(255,114,70)','rgb(255,114,70)','cttPulse 1.2s infinite'],break:['BREAK','rgb(140,167,236)','rgb(140,167,236)','none'],finished:['FINISHED','rgb(57,233,169)','rgb(57,233,169)','none'],gap:['MEET THE GAP','rgb(57,233,169)','rgb(57,233,169)','none']};
+    const pm=phaseMap[phase]||phaseMap.idle;
+    const remain=r?r.remainMs:this.durMs?0:0;
+    const timerText=r&&phase!=='idle'&&phase!=='finished'?this.fmt(r.remainMs):this.fmt((p.roundSeconds-p.moveSeconds)*1000);
+    const warn=r&&!r.paused&&((phase==='conversation'&&r.remainMs<=15000)||(phase==='move'&&r.remainMs<=10000));
+    const runDur=r&&r.durMs?r.durMs:0;
+    const runProgress=(runDur&&(phase==='conversation'||phase==='move'||phase==='break'||phase==='gap')?Math.min(100,Math.max(0,100*(1-r.remainMs/runDur))):0).toFixed(1)+'%';
+    const progColor=phase==='conversation'?'rgb(57,233,169)':(phase==='move'?'rgb(255,114,70)':(phase==='break'?'rgb(140,167,236)':(phase==='gap'?'rgb(57,233,169)':'transparent')));
+    const ibIdx=plan?Math.min((phase==='move'||phase==='break')?(runRound+1):runRound,Math.max(0,R-1)):0;
+    const ibList=p.icebreakers||[];
+    const ibDefault=function(i){return ICEBREAKERS[i%ICEBREAKERS.length];};
+    const icebreakerText=(ibList[ibIdx]!=null?ibList[ibIdx]:ibDefault(ibIdx));
+    const icebreakerOn=(phase==='idle'||phase==='conversation'||phase==='move')&&!!plan&&String(icebreakerText).trim()!=='';
+    const icebreakerLabel=phase==='move'?'NEXT ICEBREAKER':'ICEBREAKER \u00b7 ROUND '+(ibIdx+1);
+    const gapRows=(phase==='gap'&&plan)?this.roster.map(function(pe){const met=plan.met[pe.id];const tg=self.roster.filter(function(o){return o.id!==pe.id&&!met.has(o.id);}).slice(0,3).map(function(o){return o.name;}).join(', ');return {name:pe.name,targets:tg||'met everyone \u2014 float freely!'};}):[];
+    const search=st.search.toLowerCase();
+    const floor=this.getFloor();
+    const roundGroups=plan?plan.rounds[Math.min(runRound,R-1)]:[];
+    const areaCards=roundGroups.map(function(g,a){
+      const letter=LETTERS[a];const pos=floor[letter]||{x:(a%5)*20.2+0.6,y:Math.floor(a/5)*51+2};
+      let hi=false;
+      const members=g.map(function(id){const pe=self.byId[id];const match=search.length>=2&&pe.name.toLowerCase().indexOf(search)>=0;if(match)hi=true;
+        let arrow='';
+        if(phase==='move'){const nxt=plan.areaByRound[id][runRound+1];arrow=nxt===undefined?'\u2713':'\u2192 '+LETTERS[nxt];}
+        return {name:pe.name,company:pe.company,arrow:arrow,nameColor:match?'rgb(44,255,170)':'#fff'};});
+      let ghost='';
+      if(st.ghost&&runRound+1<R){ghost='next: '+plan.rounds[runRound+1][a].map(function(id){return self.byId[id].name.split(' ')[0];}).join(', ');}
+      const border=hi?'rgb(44,255,170)':(phase==='move'?'rgb(255,114,70)':'rgb(61,61,61)');
+      return {letter:letter,letterColor:hi?'rgb(44,255,170)':'#fff',count:g.length+' seats',left:pos.x+'%',top:pos.y+'%',border:border,anim:phase==='move'&&!hi?'cttGlow 1.6s infinite':'none',cursor:st.editFloor?'grab':'default',onDown:self.startDrag(letter),members:members,ghost:ghost};});
+    const finText=plan?(R+' rounds \u00b7 '+q.total+' meetings \u00b7 '+q.unique+' unique pairs \u00b7 avg '+avgNew.toFixed(1)+' new people met per person.'):'';
+    const bk=r?this.breakAfter(r.round+1):null;
+    return {
+      // library
+      libOpen:st.libOpen,toggleLib:function(){self.setState({libOpen:!st.libOpen});},
+      libBorder:st.libOpen?'rgb(57,233,169)':'rgb(80,80,80)',libColor:st.libOpen?'rgb(57,233,169)':'rgb(173,169,169)',
+      libCount:st.library.length+' saved',libEmpty:st.library.length===0,
+      libraryRows:st.library.map(function(en,i){
+        const d=new Date(en.savedAt);
+        return {name:en.name,meta:(en.roster?en.roster.length:0)+' people \u00b7 '+(en.plans?en.plans.length:0)+' plans \u00b7 '+d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}),
+          onLoad:function(){self.loadEntry(en);},
+          onDelete:function(){const lib=st.library.slice();lib.splice(i,1);self.persistLib(lib);}};}),
+      activeProjectName:(function(){const en=st.library.find(function(x){return x.id===st.activeId;});return en?en.name:'Projects';})(),
+      newProject:function(){const en={version:1,type:'sns-schedule',id:'s'+Date.now(),name:'Project '+(st.library.length+1),savedAt:Date.now(),roster:[],params:defParams(),planIdx:0,plans:[]};self.persistLib(st.library.concat([en]));self.loadEntry(en,'setup');self.toastMsg('New project \u2014 import a people list to begin.');},
+      exportCurrent:function(){if(!st.plans.length){self.toastMsg('Generate a schedule first.');return;}
+        const en=self.snapshot('Exported schedule');
+        const blob=new Blob([JSON.stringify(en,null,1)],{type:'application/json'});
+        const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='speed-networking-schedule.json';a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
+        self.toastMsg('Exported \u2014 open it on any computer via Import.');},
+      importClick:function(){if(self.fileRef.current)self.fileRef.current.click();},
+      onImportFile:function(e){const f=e.target.files&&e.target.files[0];if(!f)return;
+        const rd=new FileReader();
+        rd.onload=function(){try{
+          const en=JSON.parse(rd.result);
+          if(en.type!=='sns-schedule'||!en.params||!en.plans)throw new Error('bad');
+          en.name=en.name||'Imported schedule';en.savedAt=en.savedAt||Date.now();en.id='s'+Date.now();
+          self.persistLib(self.state.library.concat([en]));
+          self.loadEntry(en);
+        }catch(err){self.toastMsg('Could not read that file \u2014 expected a schedule .json exported from this app.');}};
+        rd.readAsText(f);e.target.value='';},
+      fileRef:this.fileRef,
+      // shell
+      navItems:navItems,spaceItems:spaceItems,spacePrepare:spacePrepare,headerPlanMeta:plan?(plan.label+' \u00b7 seed '+plan.seed):'',
+      onNewEvent:function(){self.run=null;self.setState({page:'setup',dirty:false});self.toastMsg('Cleared run state \u2014 demo roster kept.');},
+      isSetup:st.page==='setup',isSchedule:st.page==='schedule',isPrint:st.page==='print',isRun:st.page==='run',
+      toast:st.toast,toastOn:!!st.toast,
+      // setup
+      rosterMeta:N?(N+' people \u00b7 '+companies+' companies'):'empty project',rosterRows:rosterRows,rosterEmpty:N===0,rosterHasPeople:N>0,
+      formName:st.form.name,formCompany:st.form.company,formEmail:st.form.email,
+      onFormName:this.setForm('name'),onFormCompany:this.setForm('company'),onFormEmail:this.setForm('email'),
+      formEditing:!!st.formEditId,formBtnLabel:st.formEditId?'Save':'Add person',
+      formCancel:function(){self.setState({form:{name:'',company:'',email:''},formEditId:null});},
+      formSubmit:function(){
+        const f=st.form;const name=f.name.trim();
+        if(!name){self.toastMsg('Name is required.');return;}
+        const dup=self.roster.some(function(o){return o.name.toLowerCase()===name.toLowerCase()&&o.id!==st.formEditId;});
+        if(dup){self.toastMsg('\u201c'+name+'\u201d is already on the roster.');return;}
+        if(st.formEditId){
+          const pe=self.roster.find(function(o){return o.id===st.formEditId;});
+          if(pe){pe.name=name;pe.company=f.company.trim();pe.email=f.email.trim();self.byId[pe.id]=pe;}
+          self.toastMsg(name+' updated.');
+          self.setState({form:{name:'',company:'',email:''},formEditId:null},function(){self.syncActive();});
+          return;
+        } else {
+          const pe={id:'m'+Date.now(),name:name,company:f.company.trim(),email:f.email.trim()};
+          self.roster=self.roster.concat([pe]);self.byId[pe.id]=pe;
+          self.toastMsg(name+' added \u2014 '+self.roster.length+' people.');
+        }
+        self.setState({form:{name:'',company:'',email:''},formEditId:null});
+        self.rosterChanged();},
+      loadDemo:function(){const demo=makeRoster();self.roster=demo;self.byId={};demo.forEach(function(pp){self.byId[pp.id]=pp;});self.setState({plans:[],planIdx:0,dirty:true},function(){self.syncActive();});self.toastMsg('Demo roster loaded \u2014 40 people, 12 companies.');},
+      csvRef:this.csvRef,
+      importRosterClick:function(){if(self.csvRef.current)self.csvRef.current.click();},
+      onRosterFile:function(e){const f=e.target.files&&e.target.files[0];if(!f)return;
+        const rd=new FileReader();
+        rd.onload=function(){try{
+          const people=parseRosterText(String(rd.result),f.name);
+          if(people.length<2)throw new Error('too few');
+          self.roster=people;self.byId={};people.forEach(function(pp){self.byId[pp.id]=pp;});
+          self.setState({plans:[],planIdx:0,dirty:true,personSlider:0},function(){self.syncActive();});
+          self.toastMsg(people.length+' people imported from '+f.name+' \u2014 generate a schedule.');
+        }catch(err){self.toastMsg('Could not read '+f.name+' \u2014 expected Name, Company columns (.csv) or a JSON array.');}};
+        rd.readAsText(f);e.target.value='';},
+      p:p,onGroupSize:this.numHandler('groupSize',2,8),onAreaCount:this.numHandler('areaCount',1,16),onRounds:this.numHandler('numRounds',1,20),onRoundSec:this.numHandler('roundSeconds',60,600),onMoveSec:this.numHandler('moveSeconds',10,120),
+      toggleAvoid:function(){self.setParam('avoidSameCompany',!p.avoidSameCompany);},
+      avoidBorder:p.avoidSameCompany?'rgb(57,233,169)':'rgb(80,80,80)',avoidKnob:p.avoidSameCompany?'18px':'2px',avoidKnobBg:p.avoidSameCompany?'rgb(57,233,169)':'rgb(135,135,135)',avoidLabel:p.avoidSameCompany?'On':'Off',avoidLabelColor:p.avoidSameCompany?'rgb(57,233,169)':'rgb(135,135,135)',
+      breakRows:breakRows,addBreak:function(){const bs=p.breaks.slice();bs.push({afterRound:Math.max(1,Math.floor(p.numRounds/2)),seconds:600,label:'Break '+(bs.length+1)});self.setParam('breaks',bs);},
+      suggestionText:suggestionText,
+      applySuggestion:function(){const np=Object.assign({},p,{groupSize:4,areaCount:sugA,numRounds:sugR,roundSeconds:180,moveSeconds:30});self.setState({params:np,dirty:true});self.toastMsg('Suggestion applied \u2014 regenerate to build the plan.');},
+      validations:validations,
+      genBg:blocked?'rgb(38,43,50)':'rgb(25,96,159)',genColor:blocked?'rgb(135,135,135)':'#fff',genCursor:blocked?'not-allowed':'pointer',
+      onGenerate:function(){if(blocked)return;self.buildPlans();self.setState({page:'schedule'});self.toastMsg('3 plans generated \u2014 compare and pick one.');},
+      // schedule
+      planChips:planChips,addPlan:function(){if(!self.roster.length){self.toastMsg('Import a roster first.');return;}const s=Math.floor(Math.random()*9000)+1000;const pl=buildPlan(s,self.roster,p,'Plan '+(st.plans.length+1));const ps=st.plans.concat([pl]);self.setState({plans:ps,planIdx:ps.length-1,personSlider:0},function(){self.syncActive();});},
+      planMeta:plan?('seed '+plan.seed+' \u00b7 optimised in-browser'):'generating\u2026',
+      statCards:statCards,qualityNote:qualityNote,
+      personMax:Math.max(0,N-1),personSlider:st.personSlider,onPersonSlider:function(e){self.setState({personSlider:parseInt(e.target.value,10)||0});},
+      selName:sel?sel.name:'\u2013',selCompany:sel?sel.company:'',selMet:String(selMet),selNever:String(selNever),selNeverList:selNeverList,
+      matrixTitle:st.viewMode==='matrix'?'Round-by-round':'Per-person plans',
+      isMatrixView:st.viewMode==='matrix',isPersonView:st.viewMode==='person',
+      onViewMatrix:function(){self.setState({viewMode:'matrix'});},onViewPerson:function(){self.setState({viewMode:'person'});},
+      vmMatrixColor:st.viewMode==='matrix'?'#fff':'rgb(135,135,135)',vmMatrixBg:st.viewMode==='matrix'?'rgb(46,53,65)':'transparent',
+      vmPersonColor:st.viewMode==='person'?'#fff':'rgb(135,135,135)',vmPersonBg:st.viewMode==='person'?'rgb(46,53,65)':'transparent',
+      areaCountStr:String(A),roundCountStr:String(R||p.numRounds),matrixMinW:(52+A*112)+'px',
+      areaHeads:areaHeads,matrixRows:matrixRows,roundHeads:roundHeads,personRows:personRows,
+      goPrint:function(){self.setState({page:'print'});},
+      // print
+      printMeta:(plan?plan.label+' \u00b7 ':'')+N+' people \u00b7 '+A+' areas \u00b7 live previews \u2014 PDF/zip export ships with the build',
+      dlAll:function(){self.toastMsg('speed-networking-materials.zip \u2014 5 PDFs (export wired in build).');},
+      dlPlans:function(){self.toastMsg('personal-plans.pdf \u2014 '+N+' pages, one per person (export wired in build).');},
+      dlTags:function(){self.toastMsg('name-tags.pdf \u2014 '+tagPages+' pages, '+tc.w+'\u00d7'+tc.h+' mm (export wired in build).');},
+      tagMeta:tc.w+'\u00d7'+tc.h+' mm \u00b7 '+tagCols+' \u00d7 '+tagRows+' = '+tagPerPage+' per page \u00b7 '+tagPages+' pages for '+N+' people',
+      tagW:String(tc.w),tagH:String(tc.h),
+      onTagW:function(e){let v=parseInt(e.target.value,10);if(isNaN(v))return;self.setTagCfg('w',Math.max(40,Math.min(105,v)));},
+      onTagH:function(e){let v=parseInt(e.target.value,10);if(isNaN(v))return;self.setTagCfg('h',Math.max(25,Math.min(105,v)));},
+      tagAlignChips:tagChip([{l:'Left',v:'left'},{l:'Center',v:'center'}],'align',tc.align),
+      tagPosChips:tagChip([{l:'Under name',v:'under'},{l:'Tag bottom',v:'bottom'}],'companyPos',tc.companyPos),
+      tagSizeChips:tagChip([{l:'Small',v:'s'},{l:'Medium',v:'m'},{l:'Large',v:'l'}],'nameSize',tc.nameSize),
+      tagPrevH:Math.max(60,Math.round(240*tc.h/tc.w))+'px',
+      tagNameFs:(tc.nameSize==='s'?'15px':(tc.nameSize==='l'?'25px':'20px')),
+      tagAlignCss:tc.align,tagAlignItems:tc.align==='left'?'flex-start':'center',
+      tagCompanyUnder:tc.companyPos==='under',tagCompanyBottom:tc.companyPos==='bottom',
+      tagSampleName:this.roster[0]?this.roster[0].name:'Alice Kowalski',
+      tagSampleCompany:this.roster[0]?(this.roster[0].company||'\u2013'):'Helios Energy',
+      tagGridCols:'repeat('+tagCols+',1fr)',
+      tagPageCells:new Array(tagPerPage).fill(0).map(function(){return {};}),
+      tagPagesLabel:'PDF \u00b7 '+tagPages+' pages',plansPagesLabel:'PDF \u00b7 '+N+' pages',signsPagesLabel:'PDF \u00b7 '+A+' pages',
+      dlSigns:function(){self.toastMsg('area-signs.pdf \u2014 '+A+' pages, one per area (export wired in build).');},
+      dlMatrix:function(){self.toastMsg('master-matrix.pdf \u2014 1 page (export wired in build).');},
+      dlReport:function(){self.toastMsg('quality-report.pdf \u2014 summary + per-person never-met lists (export wired in build).');},
+      goRun:function(){self.setState({lastPrep:'print',page:'run'});},
+      emailCounter:N?((emailIdx+1)+' / '+N):'0 / 0',
+      emailPrev:function(){self.setState({emailIdx:(emailIdx-1+N)%Math.max(1,N)});},
+      emailNext:function(){self.setState({emailIdx:(emailIdx+1)%Math.max(1,N)});},
+      emailTo:eperson?(eperson.name+' <'+(eperson.email||'no email on file')+'>'):'\u2013',
+      emailSubject:emSubjectV,emailGreeting:emailGreeting,emailIntro:emIntroV,emailOutro:emOutroV,emailPlanRows:emRows,
+      emailGridCols:emailGridCols,emailCol1:emailCol1,emailCol2:emailCol2,emailCol3:emailCol3,
+      emailModeInvite:function(){self.setState({emailMode:'invite'});},emailModeFollow:function(){self.setState({emailMode:'follow'});},
+      emInvColor:emailMode==='invite'?'#fff':'rgb(135,135,135)',emInvBg:emailMode==='invite'?'rgb(46,53,65)':'transparent',
+      emFolColor:emailMode==='follow'?'#fff':'rgb(135,135,135)',emFolBg:emailMode==='follow'?'rgb(46,53,65)':'transparent',
+      copyEmail:function(){if(!eperson||!plan)return;
+        const txt=emailMode==='follow'?buildFollowText(eperson,plan,projName,self.roster):buildEmailText(eperson,plan,p,projName,self.byId);
+        try{navigator.clipboard.writeText(txt);self.toastMsg('Email for '+eperson.name+' copied to clipboard.');}catch(e){self.toastMsg('Copy failed \u2014 clipboard unavailable.');}},
+      dlEml:function(){if(!eperson||!plan)return;
+        const body=emailMode==='follow'?buildFollowText(eperson,plan,projName,self.roster,true):buildEmailText(eperson,plan,p,projName,self.byId,true);
+        downloadText(eperson.name.replace(/\s+/g,'-').toLowerCase()+(emailMode==='follow'?'-followup':'-plan')+'.eml','To: '+(eperson.email||'')+'\nSubject: '+emSubjectV+'\nX-Unsent: 1\nContent-Type: text/plain; charset=utf-8\n\n'+body,'message/rfc822');
+        self.toastMsg('Draft .eml for '+eperson.name+' downloaded \u2014 open in your mail app to send.');},
+      dlAllEmails:function(){if(!plan||!N)return;
+        const parts=self.roster.map(function(pe){return emailMode==='follow'?buildFollowText(pe,plan,projName,self.roster):buildEmailText(pe,plan,p,projName,self.byId);});
+        downloadText((emailMode==='follow'?'followup':'invitation')+'-emails-'+N+'.txt',parts.join('\n\n========================================\n\n'),'text/plain');
+        self.toastMsg(N+' emails generated into one file \u2014 nothing was sent.');},
+      // run
+      runRoundLabel:(Math.min(runRound+1,R||1))+' / '+(R||p.numRounds),
+      phaseLabel:r&&r.paused?'PAUSED':pm[0],phaseColor:r&&r.paused?'rgb(173,169,169)':pm[1],phaseBorder:r&&r.paused?'rgb(80,80,80)':pm[2],phaseAnim:r&&r.paused?'none':pm[3],
+      timerText:timerText,timerColor:warn?'rgb(255,114,70)':(phase==='break'?'rgb(140,167,236)':'#fff'),timerAnim:warn?'cttPulse 1s infinite':'none',
+      runProgress:runProgress,progColor:progColor,
+      startPauseLabel:!r||phase==='idle'?'Start event':(phase==='finished'?'Restart':(r.paused?'Resume':'Pause')),
+      startPause:function(){
+        if(!self.run||self.run.phase==='idle'||self.run.phase==='finished'){self.run={round:0,phase:'conversation',remainMs:0,last:Date.now(),paused:false};self.run.remainMs=self.durMs('conversation');self.run.durMs=self.run.remainMs;self.chime('start');self.forceUpdate();return;}
+        self.run.paused=!self.run.paused;self.run.last=Date.now();self.forceUpdate();},
+      skipPhase:function(){if(self.run&&self.run.phase!=='finished')self.advance();},
+      nextRoundBtn:function(){if(!self.run)return;if(self.run.round>=R-1){self.run.phase='finished';}else{self.setPhase('conversation',self.run.round+1);}self.forceUpdate();},
+      endRunBtn:function(){if(self.run){self.run.phase='finished';self.forceUpdate();}},
+      resetRun:function(){self.run=null;self.forceUpdate();},
+      goScheduleBtn:function(){self.setState({page:'schedule'});},
+      search:st.search,onSearch:function(e){self.setState({search:e.target.value});},
+      toggleGhost:function(){self.setState({ghost:!st.ghost});},ghostBorder:st.ghost?'rgb(57,233,169)':'rgb(80,80,80)',ghostColor:st.ghost?'rgb(57,233,169)':'rgb(173,169,169)',
+      toggleEdit:function(){self.setState({editFloor:!st.editFloor});if(!st.editFloor)self.toastMsg('Drag areas to match your room \u2014 layout is saved.');},
+      editBorder:st.editFloor?'rgb(57,233,169)':'rgb(80,80,80)',editColor:st.editFloor?'rgb(57,233,169)':'rgb(173,169,169)',editLabel:st.editFloor?'Done editing floor':'Edit floor layout',
+      toggleDemo:function(){self.setState({demo:!st.demo});},demoBorder:st.demo?'rgb(57,233,169)':'rgb(80,80,80)',demoColor:st.demo?'rgb(57,233,169)':'rgb(173,169,169)',
+      runHint:st.editFloor?'Drag any area card to where its table stands in the room.':(phase==='idle'?'Press Start \u2014 '+talkMin+':'+(talkSec<10?'0':'')+talkSec+' talk / '+p.moveSeconds+'s move per round.':''),
+      floorWide:!st.isNarrow&&phase!=='gap',floorNarrow:st.isNarrow&&phase!=='gap',areaCards:areaCards,
+      isGap:phase==='gap',gapRows:gapRows,
+      icebreakerOn:icebreakerOn,icebreakerLabel:icebreakerLabel,icebreakerText:icebreakerText,
+      icebreakerRows:(function(){const rows=[];const nr=p.numRounds;for(let i=0;i<nr;i++){rows.push({num:(i+1<10?'0':'')+(i+1),value:(ibList[i]!=null?ibList[i]:ibDefault(i)),onInput:(function(idx){return function(e){self.setIcebreaker(idx,e.target.value);};})(i)});}return rows;})(),
+      resetIcebreakers:function(){self.resetIcebreakers();self.toastMsg('Icebreakers reset to defaults.');},
+      toggleSound:function(){const ns=!st.sound;try{localStorage.setItem('sns:soundV1',ns?'on':'off');}catch(e){}self.setState({sound:ns});if(ns)setTimeout(function(){self.chime('start');},50);},
+      soundBorder:st.sound?'rgb(57,233,169)':'rgb(80,80,80)',soundColor:st.sound?'rgb(57,233,169)':'rgb(173,169,169)',soundIcon:st.sound?'fa-solid fa-volume-high':'fa-solid fa-volume-xmark',
+      startGap:function(){if(!self.run)return;self.run.phase='gap';self.run.remainMs=300000;self.run.durMs=300000;self.run.last=Date.now();self.run.paused=false;self.chime('start');self.forceUpdate();},
+      isBreak:phase==='break'&&!(r&&r.paused),breakLabel:bk?bk.label:'Break',
+      extendBreak:function(){if(self.run&&self.run.phase==='break'){self.run.remainMs+=60000;self.run.durMs=(self.run.durMs||0)+60000;self.forceUpdate();}},
+      isFinished:phase==='finished',finText:finText
+    };
+  }
+}
+</script>
+</body>
+</html>

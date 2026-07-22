@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { clear, load, save, STORAGE_KEY } from './persistence';
+import { clear, isStorageAvailable, load, save, STORAGE_KEY } from './persistence';
 import type { EventState } from '../domain/types';
 
 const sample: EventState = {
   version: 1,
-  roster: [{ id: 'p1', name: 'Alice', company: 'Acme', rowIndex: 2 }],
+  roster: [{ id: 'p1', name: 'Alice', company: 'Acme', email: '', rowIndex: 2 }],
   params: {
     groupSize: 4,
     areas: [{ id: 'A', label: 'A' }],
@@ -44,5 +44,9 @@ describe('persistence', () => {
   it('ignores malformed JSON', () => {
     localStorage.setItem(STORAGE_KEY, 'not json');
     expect(load()).toBeUndefined();
+  });
+
+  it('reports storage as available in jsdom', () => {
+    expect(isStorageAvailable()).toBe(true);
   });
 });

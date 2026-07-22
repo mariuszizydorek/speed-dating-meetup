@@ -34,6 +34,7 @@ export async function parseRoster(
 
   const nameKey = findKey(rows[0], ['name', 'full name', 'attendee']);
   const companyKey = findKey(rows[0], ['company', 'organization', 'organisation', 'org']);
+  const emailKey = findKey(rows[0], ['email', 'e-mail', 'mail', 'email address']);
 
   if (!nameKey) {
     return {
@@ -48,7 +49,7 @@ export async function parseRoster(
     };
   }
 
-  return buildPeople(rows, nameKey, companyKey);
+  return buildPeople(rows, nameKey, companyKey, emailKey);
 }
 
 /**
@@ -59,9 +60,10 @@ export function parseRosterWithMapping(
   rows: Record<string, unknown>[],
   nameCol: string,
   companyCol?: string,
+  emailCol?: string,
 ): ParseResult {
   if (rows.length === 0) return { people: [], errors: [] };
-  return buildPeople(rows, nameCol, companyCol);
+  return buildPeople(rows, nameCol, companyCol, emailCol);
 }
 
 function readRows(buffer: ArrayBuffer): Record<string, unknown>[] {
@@ -78,6 +80,7 @@ function buildPeople(
   rows: Record<string, unknown>[],
   nameKey: string,
   companyKey: string | undefined,
+  emailKey: string | undefined,
 ): ParseResult {
   const errors: RowError[] = [];
   const people: Person[] = [];
@@ -88,8 +91,9 @@ function buildPeople(
     const excelRow = idx + 2;
     const name = String(row[nameKey] ?? '').trim();
     const company = companyKey ? String(row[companyKey] ?? '').trim() : '';
+    const email = emailKey ? String(row[emailKey] ?? '').trim() : '';
 
-    if (!name && !company) {
+    if (!name && !company && !email) {
       return;
     }
     if (!name) {
@@ -114,6 +118,7 @@ function buildPeople(
       id: nanoid(10),
       name,
       company,
+      email,
       rowIndex: excelRow,
     });
   });

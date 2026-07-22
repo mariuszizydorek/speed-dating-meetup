@@ -44,6 +44,29 @@ describe('parseRoster', () => {
     expect(result.people[0].company).toBe('');
   });
 
+  it('treats Email as optional — no column, or blank cells', async () => {
+    const noCol = await parseRoster(csvBuffer('Name,Company\nAlice,Acme\nBob,Beta\n'), 'roster.csv');
+    expect(noCol.errors).toEqual([]);
+    expect(noCol.people.every((p) => p.email === '')).toBe(true);
+
+    const blank = await parseRoster(
+      csvBuffer('Name,Company,Email\nAlice,Acme,\nBob,Beta,bob@beta.com\n'),
+      'roster.csv',
+    );
+    expect(blank.errors).toEqual([]);
+    expect(blank.people.map((p) => p.email)).toEqual(['', 'bob@beta.com']);
+
+    const xlsx = await parseRoster(
+      xlsxBuffer([
+        { Name: 'Alice', Company: 'Acme' },
+        { Name: 'Bob', Company: 'Beta' },
+      ]),
+      'roster.xlsx',
+    );
+    expect(xlsx.errors).toEqual([]);
+    expect(xlsx.people.every((p) => p.email === '')).toBe(true);
+  });
+
   it('reports rows with missing Name', async () => {
     const buf = csvBuffer('Name,Company\n,Acme\nBob,Beta\n');
     const result = await parseRoster(buf, 'roster.csv');

@@ -60,6 +60,12 @@ export function buildSeed(roster: Person[], params: EventParams): Round[] {
         groups[a].memberIds = flat.slice(cursor, cursor + sizes[a]);
         cursor += sizes[a];
       }
+
+      // Over-fill: anyone who did not get a seat sits out this round.
+      // (Bucket rotation above cycles who lands in the overflow across rounds.)
+      const sittingOut = flat.slice(cursor);
+      rounds.push({ index: r, groups, sittingOut });
+      continue;
     }
 
     rounds.push({ index: r, groups, sittingOut: [] });

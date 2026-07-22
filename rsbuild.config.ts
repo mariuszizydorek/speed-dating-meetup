@@ -5,11 +5,11 @@ import { pluginReact } from '@rsbuild/plugin-react';
 export default defineConfig({
   plugins: [pluginReact()],
   html: {
-    title: 'Speed Dating Meetup',
+    title: 'Speed Networking Scheduler',
     meta: {
       viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
-      description: 'Speed Dating Meetup — works on web and mobile',
-      'theme-color': '#0f766e',
+      description: 'Local speed-networking scheduler for event organisers',
+      'theme-color': '#0a0c0f',
     },
     tags: [
       {
@@ -31,7 +31,14 @@ export default defineConfig({
         tag: 'link',
         attrs: {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,700;1,9..40,400&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Lato:wght@300;400;700;900&display=swap',
+        },
+      },
+      {
+        tag: 'link',
+        attrs: {
+          rel: 'stylesheet',
+          href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
         },
       },
     ],

@@ -1,6 +1,13 @@
-# Speed Dating Meetup
+# Speed Dating Meetup / Speed Networking Scheduler
 
-Responsive React app (web + mobile browsers) built with [Rsbuild](https://rsbuild.rs), React Router, and MUI.
+Local-only SPA for organising speed-networking events. Design handoff: `docs/superpowers/DESIGN_HANDOFF.md`.
+
+## Architecture
+
+- **SPA only** — no backend.
+- **Runs locally** — organiser machine via `pnpm run dev` / `preview`.
+- **`localStorage` only** — projects library, theme, sound, floor layout, current event.
+- **Themes** — cycle Terminal / Modern light / Modern dark (header icon).
 
 ## Setup
 
@@ -15,7 +22,7 @@ pnpm cypress:install
 pnpm run dev
 ```
 
-Opens at [http://localhost:3000](http://localhost:3000). Bound to `0.0.0.0` so you can open it from a phone on the same network.
+Open http://localhost:3000/setup. Create a project or import a roster to begin.
 
 ## Scripts
 
@@ -25,16 +32,11 @@ Opens at [http://localhost:3000](http://localhost:3000). Bound to `0.0.0.0` so y
 | `pnpm run build` | Production build |
 | `pnpm run preview` | Preview production build |
 | `pnpm test` | Unit tests (Vitest) |
-| `pnpm test:e2e` | E2E tests (Cypress) — start `pnpm run preview` or `dev` first |
+| `pnpm test:e2e` | E2E tests (Cypress) |
 | `pnpm test:e2e:open` | Cypress interactive UI |
-
-**Getting started:** Open http://localhost:3000/setup, upload an .xlsx or .csv roster (Name, Company columns), configure parameters, then generate/print/run.
 
 ## Stack
 
-- React 19 + TypeScript
-- Rsbuild
-- React Router
-- MUI
-- Vitest + Testing Library
-- Cypress
+- React 19 + TypeScript, Rsbuild, React Router, MUI
+- `@react-pdf/renderer`, `xlsx`, `nanoid`, `jszip`, `file-saver`
+- Vitest + Testing Library, Cypress

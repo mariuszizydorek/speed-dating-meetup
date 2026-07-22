@@ -1,0 +1,143 @@
+/* Speed Networking Scheduler — theme tokens (handoff README) */
+
+:root,
+[data-theme='terminal'] {
+  --sns-font: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  --sns-radius: 2px;
+  --sns-radius-lg: 2px;
+  --sns-tracking: -0.02em;
+  --sns-cardsh: none;
+
+  --sns-black: #000000;
+  --sns-panel: #0a0c0f;
+  --sns-panel-2: #2e3541;
+  --sns-panel-3: #262b32;
+  --sns-rail: #191c21;
+
+  --sns-stroke-1: #3d3d3d;
+  --sns-stroke-2: #585858;
+  --sns-stroke-3: #505050;
+  --sns-stroke-4: #384253;
+  --sns-stroke-quiet: #333333;
+
+  --sns-fg: #ffffff;
+  --sns-fg-title: #bebebe;
+  --sns-fg-muted: #ada9a9;
+  --sns-fg-label: #878787;
+  --sns-fg-subtle: #888888;
+  --sns-fg-assist: #c9c9c9;
+
+  --sns-mint: #39e9a9;
+  --sns-mint-bright: #2cffaa;
+  --sns-mint-soft: rgba(44, 255, 170, 0.08);
+  --sns-red: #bd3333;
+  --sns-blue: #3f6ed4;
+  --sns-blue-deep: #19609f;
+  --sns-blue-soft: #8ca7ec;
+  --sns-orange: #ff7246;
+  --sns-cta: #19609f;
+  --sns-acc: #39e9a9;
+  --sns-info: #8ca7ec;
+  --sns-suggest-bg: #2e3541;
+  --sns-suggest-border: #505050;
+}
+
+[data-theme='modern-light'] {
+  --sns-font: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+  --sns-radius: 8px;
+  --sns-radius-lg: 10px;
+  --sns-cardsh: 0 1px 3px rgba(26, 28, 34, 0.07);
+
+  --sns-black: #f2f2ec;
+  --sns-panel: #ffffff;
+  --sns-panel-2: #e8e8df;
+  --sns-panel-3: #d9d9cf;
+  --sns-rail: #f3f3ec;
+
+  --sns-stroke-1: #dcdcd3;
+  --sns-stroke-2: #d0d0c6;
+  --sns-stroke-3: #c4c4b8;
+  --sns-stroke-4: #b8b8ab;
+  --sns-stroke-quiet: #e3e3db;
+
+  --sns-fg: #1a1c22;
+  --sns-fg-title: #3f434c;
+  --sns-fg-muted: #5a5e66;
+  --sns-fg-label: #6b6e76;
+  --sns-fg-subtle: #83868e;
+  --sns-fg-assist: #4a4e57;
+
+  --sns-mint: #0d9b6c;
+  --sns-mint-bright: #0d9b6c;
+  --sns-mint-soft: rgba(13, 155, 108, 0.08);
+  --sns-red: #cb4238;
+  --sns-blue: #5f6de0;
+  --sns-blue-deep: #4a57d2;
+  --sns-blue-soft: #5f6de0;
+  --sns-orange: #de7326;
+  --sns-cta: #4a57d2;
+  --sns-acc: #0d9b6c;
+  --sns-info: #5f6de0;
+  --sns-suggest-bg: #edf7f1;
+  --sns-suggest-border: #c4e5d5;
+}
+
+[data-theme='modern-dark'] {
+  --sns-font: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+  --sns-radius: 8px;
+  --sns-radius-lg: 10px;
+  --sns-cardsh: 0 1px 3px rgba(0, 0, 0, 0.4);
+
+  --sns-black: #141416;
+  --sns-panel: #1c1c1f;
+  --sns-panel-2: #28282d;
+  --sns-panel-3: #333338;
+  --sns-rail: #242428;
+
+  --sns-stroke-1: #26262a;
+  --sns-stroke-2: #2b2b30;
+  --sns-stroke-3: #303036;
+  --sns-stroke-4: #404049;
+  --sns-stroke-quiet: #26262a;
+
+  --sns-fg: #ececee;
+  --sns-fg-title: #cfcfd4;
+  --sns-fg-muted: #a6a6ad;
+  --sns-fg-label: #828289;
+  --sns-fg-subtle: #828289;
+  --sns-fg-assist: #bcbcc2;
+
+  --sns-mint: #9d8cff;
+  --sns-mint-bright: #9d8cff;
+  --sns-mint-soft: rgba(157, 140, 255, 0.12);
+  --sns-red: #e56b60;
+  --sns-blue: #8e9bf0;
+  --sns-blue-deep: #6673e8;
+  --sns-blue-soft: #8e9bf0;
+  --sns-orange: #efa05c;
+  --sns-cta: #6673e8;
+  --sns-acc: #9d8cff;
+  --sns-info: #8e9bf0;
+  --sns-suggest-bg: #272438;
+  --sns-suggest-border: #3c3859;
+}
+
+html,
+body,
+#root {
+  background: var(--sns-black);
+  color: var(--sns-fg);
+  font-family: var(--sns-font);
+  letter-spacing: var(--sns-tracking, -0.02em);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes snsPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+@keyframes snsGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 114, 70, 0); }
+  50% { box-shadow: 0 0 16px 0 rgba(255, 114, 70, 0.28); }
+}

@@ -1,15 +1,15 @@
-import { CssBaseline, ThemeProvider } from '@mui/material';
+import { CssBaseline } from '@mui/material';
 import { AppRouter } from './router';
 import { EventProvider } from './state/EventContext';
-import { theme } from './theme';
+import { AppThemeProvider } from './theme/AppThemeProvider';
 
 const App = () => (
-  <ThemeProvider theme={theme}>
+  <AppThemeProvider>
     <CssBaseline />
     <EventProvider>
       <AppRouter />
     </EventProvider>
-  </ThemeProvider>
+  </AppThemeProvider>
 );
 
 export default App;
