@@ -169,7 +169,7 @@ Pure, no I/O. Called from `SchedulePage` inside a `useTransition`. If future loa
 
 The problem is a Social Golfer Problem variant with an added same-company soft constraint. We use **constructive seed + swap-based local search**:
 
-1. **Seed** (`seed.ts`): round-robin construction — for round `r`, person index `i` goes to area `(i + r·k) mod A` where `k` is coprime to `A`; each area's arrivals are partitioned in order into groups of `groupSize`. Deterministic baseline.
+1. **Seed** (`seed.ts`): round-robin construction — for round `r`, person index `i` goes to area `(i + r·k) mod A` where `k` is the smallest integer ≥ `groupSize` that is coprime to `A` (falling back to `k = 1` only if none exists in `[groupSize, A)`); each area's arrivals are partitioned in order into groups of `groupSize`. Deterministic baseline.
 2. **Cost** (`cost.ts`):
    ```
    C = w1 * repeatedPairs + w2 * sameCompanyPairs
@@ -178,9 +178,9 @@ The problem is a Social Golfer Problem variant with an added same-company soft c
    Uniqueness dominates; same-company is a strong secondary preference.
 3. **Search** (`search.ts`), per restart, until `timeBudgetMs` elapses:
    - Propose a **seat swap**: pick two people from different groups in the same round; swap them.
-   - Accept if `ΔC ≤ 0`.
+   - Accept if `ΔC < 0` (strict improvement) or with probability `p_plateau = 0.2` if `ΔC == 0` (plateau walk, keeps the search moving without regressing).
    - Track best-ever schedule across restarts.
-   - Occasional random-restart escape to leave plateaus.
+   - **Restart trigger**: if `N_stagnant` = 500 consecutive proposals produce no accepted improvement, discard current state and start a new restart from a fresh seeded round-robin.
 4. **Under-fill**: if `roster.length < areas.length * groupSize`, distribute the shortfall as smaller groups (minimum group size = 2). If any would fall below 2, reduce the number of areas used in that round.
 5. **Determinism**: seeded PRNG (`mulberry32`) — same seed → same schedule. Seed stored on the returned `Schedule`.
 6. **Quality** (`quality.ts`): a single post-search pass computes `Quality`.
@@ -207,7 +207,13 @@ Top-level nav (`AppLayout`): **Setup → Schedule → Print → Run**. Steps adv
 ### 8.1 SetupPage
 - **Roster panel**: drop-zone / file picker for `.xlsx` / `.csv`; preview table; inline row-level errors (missing name, duplicate name); manual add/edit/delete row; column mapper for `Name` and `Company`.
 - **Parameters panel**: number inputs for group size, area count, round count; area label editor (editable chips A–J); duration + move sliders; avoid-same-company toggle; breaks editor (add/remove `{after round N, seconds, label}`).
-- **Validation banner**: seat count vs roster size, "will have empty seats", "impossible with these constraints".
+- **Validation banner**: seat count vs roster size, "will have empty seats" (when `roster.length < areas.length * groupSize`), and hard-block conditions:
+  - `roster.length < groupSize` — not enough people to form even one full group.
+  - `groupSize < 2` — a group of one is not a meeting.
+  - `areas.length < 1`, `numRounds < 1` — degenerate inputs.
+  - Any `break.afterRound` outside `[1, numRounds - 1]`.
+
+  Hard-block conditions disable the "Generate" CTA and are surfaced as red banner items with the offending value; soft warnings (empty seats) stay yellow and do not block.
 - **CTA**: "Generate schedule" → `/schedule`.
 
 ### 8.2 SchedulePage
@@ -249,7 +255,7 @@ Rendered with `@react-pdf/renderer` so multi-page layouts stay deterministic acr
 ## 10. State and persistence (`src/state/`)
 
 - `EventContext.tsx` — React context exposing `state: EventState | undefined`, plus discrete actions (`importRoster`, `updateParams`, `generateSchedule`, `startRun`, `advancePhase`, `clearEvent`, …). No Redux/Zustand — one event, one context.
-- `persistence.ts` — `load()`, `save(state)`, `clear()`. `EventContext` calls `save` on mutations, throttled to 250ms for `runState` changes and only on **phase transitions** (not per-tick, since the timer is derived from `phaseStartedAt`).
+- `persistence.ts` — `load()`, `save(state)`, `clear()`. `EventContext` calls `save` on every state mutation **except** the per-second `runState` timer tick — the timer is derived from `phaseStartedAt`, so `save` only fires on `runState` **phase transitions** (start / pause / resume / advance / break entry+exit / finish). No throttle needed.
 - Boot: `App` mounts → `load()` → hydrate context if present, otherwise empty Setup.
 - **Explicit clear**: "New event" menu item in `AppLayout` with confirm dialog → `clear()` → back to Setup.
 - Size: `EventState` for 40 people + full schedule fits comfortably in tens of KB. `localStorage` is sufficient.
