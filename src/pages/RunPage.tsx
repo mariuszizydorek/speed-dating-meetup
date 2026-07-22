@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Alert, Button, Chip, Container, Paper, Stack, TextField, Typography,
+  Alert, Box, Button, Chip, Container, FormControlLabel, Paper, Stack, Switch,
+  TextField, Typography,
 } from '@mui/material';
 import { useEvent } from '../state/EventContext';
 import { AreaGrid } from '../components/AreaGrid';
@@ -47,6 +48,7 @@ export function RunPage() {
   const { state, actions } = useEvent();
   const [now, setNow] = useState(Date.now());
   const [find, setFind] = useState('');
+  const [showNextRound, setShowNextRound] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 100);
@@ -105,15 +107,52 @@ export function RunPage() {
     ? state.roster.find((p) => p.name.toLowerCase().includes(find.trim().toLowerCase()))?.id
     : undefined;
 
+  const totalRounds = state.schedule.rounds.length;
+  const currentRoundIndex = run?.currentRoundIndex ?? 0;
+  const canShowGhost = !!nextRoundData;
+  const ghostActive = showNextRound && canShowGhost;
+  const displayedRound = ghostActive ? nextRoundData! : currentRound;
+
+  const handleSkipRound = () => {
+    if (!run) return;
+    const nextIdx = currentRoundIndex + 1;
+    if (nextIdx >= totalRounds) {
+      actions.endRun();
+    } else {
+      actions.setPhase({ phase: 'conversation', roundIndex: nextIdx, startedAt: Date.now() });
+    }
+  };
+
+  const handleSkipBreak = () => {
+    if (!run) return;
+    const nextIdx = currentRoundIndex + 1;
+    if (nextIdx >= totalRounds) {
+      actions.endRun();
+    } else {
+      actions.setPhase({ phase: 'conversation', roundIndex: nextIdx, startedAt: Date.now() });
+    }
+  };
+
+  const handleExtendBreak = () => {
+    if (!run) return;
+    // Extend break by 60s: shift phaseStartedAt back so the elapsed timer
+    // effectively reads 60s less than it does now. Same phase + round.
+    actions.setPhase({
+      phase: 'break',
+      roundIndex: currentRoundIndex,
+      startedAt: run.phaseStartedAt + 60_000,
+    });
+  };
+
   return (
     <Container sx={{ py: 3 }} maxWidth="xl">
       <Paper sx={{ p: 2, mb: 2 }}>
         <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-          <Typography variant="h5">Round {(run?.currentRoundIndex ?? 0) + 1} of {state.schedule.rounds.length}</Typography>
+          <Typography variant="h5">Round {currentRoundIndex + 1} of {totalRounds}</Typography>
           <Chip label={phase.toUpperCase()} color={phase === 'move' ? 'warning' : phase === 'break' ? 'default' : 'primary'} />
           <Typography variant="h3" sx={{ fontVariantNumeric: 'tabular-nums', ml: 'auto' }}>{mm}:{ss}</Typography>
         </Stack>
-        <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap' }}>
+        <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap', alignItems: 'center' }}>
           {phase === 'idle' && (
             <Button variant="contained" onClick={actions.startRun}>Start</Button>
           )}
@@ -124,6 +163,7 @@ export function RunPage() {
                 const next = nextPhase(phase, run!.currentRoundIndex, state.schedule!.rounds.length, state.params.breaks);
                 actions.setPhase({ phase: next.phase, roundIndex: next.roundIndex, startedAt: Date.now() });
               }}>Skip phase</Button>
+              <Button onClick={handleSkipRound}>Skip round</Button>
               <Button color="error" onClick={actions.endRun}>End event</Button>
             </>
           )}
@@ -143,31 +183,56 @@ export function RunPage() {
               <Button color="error" onClick={actions.endRun}>End event</Button>
             </>
           )}
+          <FormControlLabel
+            sx={{ ml: 'auto' }}
+            control={(
+              <Switch
+                size="small"
+                checked={ghostActive}
+                disabled={!canShowGhost}
+                onChange={(e) => setShowNextRound(e.target.checked)}
+              />
+            )}
+            label="Show next round"
+          />
           <TextField size="small" placeholder="Find a name…" value={find}
-            onChange={(e) => setFind(e.target.value)} sx={{ ml: 'auto', minWidth: 200 }} />
+            onChange={(e) => setFind(e.target.value)} sx={{ minWidth: 200 }} />
         </Stack>
       </Paper>
 
       {effectivePhase === 'break' ? (
         <Paper sx={{ p: 6, textAlign: 'center', bgcolor: 'grey.100' }}>
           <Typography variant="h2">
-            {state.params.breaks.find((b) => b.afterRound === (run?.currentRoundIndex ?? 0) + 1)?.label ?? 'Break'}
+            {state.params.breaks.find((b) => b.afterRound === currentRoundIndex + 1)?.label ?? 'Break'}
           </Typography>
           <Typography variant="h1" sx={{ mt: 2, fontVariantNumeric: 'tabular-nums' }}>{mm}:{ss}</Typography>
+          <Stack direction="row" spacing={2} sx={{ mt: 4, justifyContent: 'center' }}>
+            <Button variant="contained" onClick={handleSkipBreak}>Skip break</Button>
+            <Button variant="outlined" onClick={handleExtendBreak}>+1 minute</Button>
+          </Stack>
         </Paper>
       ) : phase === 'finished' ? (
         <Paper sx={{ p: 6, textAlign: 'center' }}>
           <Typography variant="h3">Event complete 🎉</Typography>
         </Paper>
       ) : (
-        <AreaGrid
-          roster={state.roster}
-          params={state.params}
-          round={currentRound}
-          phase={effectivePhase}
-          nextRound={effectivePhase === 'move' ? nextRoundData : undefined}
-          highlightPersonId={highlight}
-        />
+        <Box>
+          {ghostActive && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Preview: Round {currentRoundIndex + 2}
+            </Alert>
+          )}
+          <Box sx={{ opacity: ghostActive ? 0.55 : 1, transition: 'opacity 200ms' }}>
+            <AreaGrid
+              roster={state.roster}
+              params={state.params}
+              round={displayedRound}
+              phase={effectivePhase}
+              nextRound={effectivePhase === 'move' && !ghostActive ? nextRoundData : undefined}
+              highlightPersonId={highlight}
+            />
+          </Box>
+        </Box>
       )}
     </Container>
   );
