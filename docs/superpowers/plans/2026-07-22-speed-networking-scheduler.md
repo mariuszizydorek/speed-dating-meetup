@@ -18,9 +18,14 @@ Before executing any task:
 
 1. Skim the spec (link above) — every domain concept and decision is anchored there.
 2. `tsconfig.json` sets `verbatimModuleSyntax: true`, `noUnusedLocals: true`, `noUnusedParameters: true`. All type-only imports MUST use `import type { … }`. Do not leave unused parameters — prefix with `_` if unavoidable.
-3. Component tests must wrap the rendered tree in `<ThemeProvider theme={theme}>` and a router (`<MemoryRouter>` for pages, no router for pure components). See existing `src/pages/HomePage.test.tsx` for the pattern.
-4. Every task ends with a **commit** step. Commit messages follow: `feat: …`, `test: …`, `chore: …`, `refactor: …` (Conventional Commits — style matches the initial commit).
-5. Run the full test suite (`pnpm test`) at the end of each task before committing, not just the new test file.
+3. **Type imports for React 19:** Do NOT reference the bare `JSX.Element` or `React.ReactElement` types — under `@types/react` v19 the global `JSX` namespace and React namespace are not reliably available without explicit imports. Instead use:
+   ```ts
+   import type { ReactElement, ReactNode } from 'react';
+   ```
+   For component return-type annotations, prefer to omit the annotation entirely and let TypeScript infer.
+4. Component tests must wrap the rendered tree in `<ThemeProvider theme={theme}>` and a router (`<MemoryRouter>` for pages, no router for pure components). See existing `src/pages/HomePage.test.tsx` for the pattern.
+5. Every task ends with a **commit** step. Commit messages follow: `feat: …`, `test: …`, `chore: …`, `refactor: …` (Conventional Commits — style matches the initial commit).
+6. Run the full test suite (`pnpm test`) at the end of each task before committing, not just the new test file.
 
 ---
 
@@ -175,6 +180,11 @@ export interface RunState {
   phase: RunPhase;
   phaseStartedAt: number;
   pausedRemainingMs?: number;
+  /**
+   * When phase === 'paused', remembers which phase we paused from so
+   * that Resume restores the correct running phase (conversation / move / break).
+   */
+  pausedFromPhase?: RunPhase;
 }
 
 export interface EventState {
@@ -1719,8 +1729,8 @@ const DEFAULT_PARAMS: EventParams = {
 };
 
 type Action =
-  | { type: 'HYDRATE'; payload: EventState | undefined }
-  | { type: 'IMPORT_ROSTER'; payload: Person[] }
+  | { type: 'IMPORT_ROSTER'; payload: Person[] }         // fresh import; clears schedule + runState
+  | { type: 'UPDATE_ROSTER'; payload: Person[] }         // inline edit; preserves schedule
   | { type: 'UPDATE_PARAMS'; payload: Partial<EventParams> }
   | { type: 'SET_SCHEDULE'; payload: Schedule }
   | { type: 'START_RUN' }
@@ -1732,8 +1742,6 @@ type Action =
 
 function reducer(state: EventState | undefined, action: Action): EventState | undefined {
   switch (action.type) {
-    case 'HYDRATE':
-      return action.payload;
     case 'CLEAR':
       return undefined;
     case 'IMPORT_ROSTER': {
@@ -1743,6 +1751,10 @@ function reducer(state: EventState | undefined, action: Action): EventState | un
         params: DEFAULT_PARAMS,
       };
       return { ...base, roster: action.payload, schedule: undefined, runState: undefined };
+    }
+    case 'UPDATE_ROSTER': {
+      if (!state) return state;
+      return { ...state, roster: action.payload };
     }
     case 'UPDATE_PARAMS': {
       if (!state) return state;
@@ -1776,29 +1788,36 @@ function reducer(state: EventState | undefined, action: Action): EventState | un
           currentRoundIndex: action.payload.roundIndex,
           phaseStartedAt: action.payload.startedAt,
           pausedRemainingMs: undefined,
+          pausedFromPhase: undefined,
         },
       };
     case 'PAUSE_RUN':
       if (!state?.runState) return state;
+      // Don't overwrite pausedFromPhase if already paused (idempotent pause).
+      if (state.runState.phase === 'paused') return state;
       return {
         ...state,
         runState: {
           ...state.runState,
           phase: 'paused',
+          pausedFromPhase: state.runState.phase,
           pausedRemainingMs: action.payload.remainingMs,
         },
       };
-    case 'RESUME_RUN':
+    case 'RESUME_RUN': {
       if (!state?.runState) return state;
+      const restorePhase: RunPhase = state.runState.pausedFromPhase ?? 'conversation';
       return {
         ...state,
         runState: {
           ...state.runState,
-          phase: 'conversation',
+          phase: restorePhase,
           phaseStartedAt: action.payload.startedAt,
           pausedRemainingMs: undefined,
+          pausedFromPhase: undefined,
         },
       };
+    }
     case 'END_RUN':
       if (!state?.runState) return state;
       return {
@@ -1812,6 +1831,7 @@ function reducer(state: EventState | undefined, action: Action): EventState | un
 
 interface EventActions {
   importRoster(people: Person[]): void;
+  updateRoster(people: Person[]): void;
   updateParams(patch: Partial<EventParams>): void;
   setSchedule(schedule: Schedule): void;
   startRun(): void;
@@ -1829,7 +1849,7 @@ interface EventContextValue {
 
 const EventContext = createContext<EventContextValue | undefined>(undefined);
 
-export function EventProvider({ children }: { children: ReactNode }): JSX.Element {
+export function EventProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, () => load());
 
   // Persist on every state change except undefined-clear (handled explicitly by CLEAR/clearStorage).
@@ -1840,6 +1860,7 @@ export function EventProvider({ children }: { children: ReactNode }): JSX.Elemen
   const actions = useMemo<EventActions>(
     () => ({
       importRoster: (people) => dispatch({ type: 'IMPORT_ROSTER', payload: people }),
+      updateRoster: (people) => dispatch({ type: 'UPDATE_ROSTER', payload: people }),
       updateParams: (patch) => dispatch({ type: 'UPDATE_PARAMS', payload: patch }),
       setSchedule: (schedule) => dispatch({ type: 'SET_SCHEDULE', payload: schedule }),
       startRun: () => dispatch({ type: 'START_RUN' }),
@@ -2163,16 +2184,20 @@ export function SetupPage() {
   }
 
   function removePerson(id: string) {
+    // Removing an attendee invalidates the schedule — treat as fresh import.
     actions.importRoster(roster.filter((p) => p.id !== id));
   }
 
   function addManualPerson() {
+    // Adding an attendee invalidates the schedule — treat as fresh import.
     const person: Person = { id: nanoid(10), name: 'New attendee', company: '', rowIndex: -1 };
     actions.importRoster([...roster, person]);
   }
 
   function editPerson(id: string, patch: Partial<Person>) {
-    actions.importRoster(roster.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+    // Renaming or changing company does NOT invalidate the schedule;
+    // use updateRoster so keystrokes don't wipe schedule/runState.
+    actions.updateRoster(roster.map((p) => (p.id === id ? { ...p, ...patch } : p)));
   }
 
   // Validation
@@ -2596,6 +2621,7 @@ Create `src/components/pdf/pdf.test.tsx`:
 ```tsx
 import { describe, expect, it } from 'vitest';
 import { pdf } from '@react-pdf/renderer';
+import type { ReactElement } from 'react';
 import { PersonalPlanPdf } from './PersonalPlanPdf';
 import { NameTagsPdf } from './NameTagsPdf';
 import { AreaSignsPdf } from './AreaSignsPdf';
@@ -2632,7 +2658,7 @@ const schedule: Schedule = {
   },
 };
 
-async function renderToBlob(node: React.ReactElement) {
+async function renderToBlob(node: ReactElement) {
   const blob = await pdf(node).toBlob();
   return blob;
 }
@@ -2998,6 +3024,7 @@ Overwrite `src/pages/PrintPage.tsx`:
 
 ```tsx
 import { useState } from 'react';
+import type { ReactElement } from 'react';
 import {
   Alert, Box, Button, Card, CardActions, CardContent, Container, Snackbar, Stack, Typography,
 } from '@mui/material';
@@ -3065,7 +3092,7 @@ export function PrintPage() {
     },
   ];
 
-  async function downloadOne(title: string, filename: string, node: React.ReactElement) {
+  async function downloadOne(title: string, filename: string, node: ReactElement) {
     try {
       const blob = await pdf(node).toBlob();
       saveAs(blob, filename);
@@ -3385,6 +3412,22 @@ describe('RunPage', () => {
     act(() => vi.advanceTimersByTime(1100));
     expect(screen.getByText(/round 2/i)).toBeInTheDocument();
   });
+
+  it('pauses during move and resumes into move (not conversation)', () => {
+    renderPage();
+    act(() => screen.getByRole('button', { name: /start/i }).click());
+    // Advance into move phase.
+    act(() => vi.advanceTimersByTime(2100));
+    expect(screen.getByText(/move/i)).toBeInTheDocument();
+    act(() => screen.getByRole('button', { name: /pause/i }).click());
+    expect(screen.getByText(/paused/i)).toBeInTheDocument();
+    // Ticks while paused should not advance the phase.
+    act(() => vi.advanceTimersByTime(5000));
+    expect(screen.getByText(/paused/i)).toBeInTheDocument();
+    act(() => screen.getByRole('button', { name: /resume/i }).click());
+    // We resumed into MOVE, not CONVERSATION.
+    expect(screen.getByText(/move/i)).toBeInTheDocument();
+  });
 });
 ```
 
@@ -3487,9 +3530,17 @@ export function RunPage() {
   }
 
   const phase = run?.phase ?? 'idle';
-  const dur = phaseDurationMs(phase, run?.currentRoundIndex ?? 0, state.params.roundSeconds, state.params.moveSeconds, state.params.breaks);
+  // While paused, treat the pre-pause phase as the "effective" phase for
+  // duration + timer display; the actual `phase` remains 'paused' so the
+  // auto-advance effect above stays quiet.
+  const effectivePhase: RunPhase =
+    phase === 'paused' ? run?.pausedFromPhase ?? 'conversation' : phase;
+  const dur = phaseDurationMs(effectivePhase, run?.currentRoundIndex ?? 0,
+    state.params.roundSeconds, state.params.moveSeconds, state.params.breaks);
   const elapsed = run ? now - run.phaseStartedAt : 0;
-  const remaining = Math.max(0, dur - elapsed);
+  const remaining = phase === 'paused'
+    ? Math.max(0, run?.pausedRemainingMs ?? 0)
+    : Math.max(0, dur - elapsed);
   const mm = Math.floor(remaining / 60000).toString().padStart(2, '0');
   const ss = Math.floor((remaining % 60000) / 1000).toString().padStart(2, '0');
 
@@ -3521,7 +3572,17 @@ export function RunPage() {
           )}
           {phase === 'paused' && (
             <>
-              <Button variant="contained" onClick={() => actions.resumeRun(Date.now() - (dur - (run!.pausedRemainingMs ?? 0)))}>Resume</Button>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  // Set phaseStartedAt so that the timer will read
+                  // `pausedRemainingMs` remaining immediately after resume.
+                  const rem = run?.pausedRemainingMs ?? 0;
+                  actions.resumeRun(Date.now() - (dur - rem));
+                }}
+              >
+                Resume
+              </Button>
               <Button color="error" onClick={actions.endRun}>End event</Button>
             </>
           )}
@@ -3530,7 +3591,7 @@ export function RunPage() {
         </Stack>
       </Paper>
 
-      {phase === 'break' ? (
+      {effectivePhase === 'break' ? (
         <Paper sx={{ p: 6, textAlign: 'center', bgcolor: 'grey.100' }}>
           <Typography variant="h2">
             {state.params.breaks.find((b) => b.afterRound === (run?.currentRoundIndex ?? 0) + 1)?.label ?? 'Break'}
@@ -3546,8 +3607,8 @@ export function RunPage() {
           roster={state.roster}
           params={state.params}
           round={currentRound}
-          phase={phase}
-          nextRound={phase === 'move' ? nextRoundData : undefined}
+          phase={effectivePhase}
+          nextRound={effectivePhase === 'move' ? nextRoundData : undefined}
           highlightPersonId={highlight}
         />
       )}
