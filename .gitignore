@@ -1,0 +1,22 @@
+# Local
+.DS_Store
+*.local
+*.log*
+
+# Dist
+node_modules
+dist/
+
+# Tests
+coverage/
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+
+# Profile
+.rspack-profile-*/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
