@@ -28,6 +28,8 @@ Opens at [http://localhost:3000](http://localhost:3000). Bound to `0.0.0.0` so y
 | `pnpm test:e2e` | E2E tests (Cypress) — start `pnpm run preview` or `dev` first |
 | `pnpm test:e2e:open` | Cypress interactive UI |
 
+**Getting started:** Open http://localhost:3000/setup, upload an .xlsx or .csv roster (Name, Company columns), configure parameters, then generate/print/run.
+
 ## Stack
 
 - React 19 + TypeScript
